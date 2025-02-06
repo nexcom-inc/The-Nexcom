@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { NestCommonModule } from '@the-nexcom/nest-common';
+import { PrismaService } from '../lib';
 
 @Module({
   imports: [
@@ -10,9 +11,9 @@ import { NestCommonModule } from '@the-nexcom/nest-common';
       isGlobal: true,
       envFilePath: './.env',
     }),
-    NestCommonModule.registerRmq('AUTH_SERVICE', process.env.RABBITMQ_AUTH_QUEUE ?? 'auth_queue'),
+    NestCommonModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}

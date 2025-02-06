@@ -1,0 +1,9 @@
+{
+  "name": "nest-common",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/nest-common/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project nest-common --web",
+  "targets": {}
+}

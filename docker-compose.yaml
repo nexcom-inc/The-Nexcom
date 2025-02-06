@@ -1,0 +1,35 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: /bin/sh -c "redis-server --requirepass $REDIS_PASSWORD"
+    hostname: redis
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    volumes:
+      - ./redis/data:/data
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    hostname: postgres
+    # volumes:
+    #   - ./postgres/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+
