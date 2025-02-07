@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "strictNullChecks": true,
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
@@ -15,6 +16,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@the-nexcom/dto": ["libs/shared/dto/src/index.ts"],
       "@the-nexcom/nest-common": ["libs/shared/nest-common/src/index.ts"]
     }
   },

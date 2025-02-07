@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
-import { AppService } from './app.service';
+import { AuthService } from './auth.service';
 import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
 import { NestCommonService } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService,
+export class AuthController {
+  constructor(private readonly appService: AuthService,
     private readonly nestCommonService: NestCommonService,
     private readonly primsa: PrismaService,
   ) {}
