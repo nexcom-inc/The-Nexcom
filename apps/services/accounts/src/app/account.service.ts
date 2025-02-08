@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateAccountDto, UpdateAccountDto } from '@the-nexcom/dto';
 import { PrismaService } from '@the-nexcom/nest-common';
 
@@ -10,9 +10,13 @@ export class AccountService {
   ) {}
 
   async createAccount(account: CreateAccountDto) {
-    return await this.prisma.account.create({
-      data: account
-    })
+    try {
+      return await this.prisma.account.create({
+        data: account
+      })
+    } catch (error) {
+      Logger.warn('une erreur s\'est produite :', error?.message);
+    }
   }
 
   async updateAccount(account: UpdateAccountDto) {
