@@ -9,6 +9,9 @@ export default registerAs ('rmq', () : ClientOptions => ({
     queue: process.env["RABBITMQ_AUTH_QUEUE"],
     queueOptions: {
       durable: true,
+      arguments: {
+        'x-message-ttl': 0,
+      },
     },
   },
 }));

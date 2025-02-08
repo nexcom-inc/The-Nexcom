@@ -31,7 +31,7 @@ async function bootstrap() {
   // fs.writeFileSync("./docs/swagger-spec.json/", JSON.stringify(document));
   SwaggerModule.setup(globalPrefix, app, document);
 
-  const port = process.env.PORT || 5000;
+  const port = process.env.PORT || 3000;
   await app.listen(port);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`

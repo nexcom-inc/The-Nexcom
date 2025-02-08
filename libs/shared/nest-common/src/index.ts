@@ -9,3 +9,5 @@ export * from './lib/services/prisma.service';
 export * from './lib/interfaces/shared.service.interface';
 export * from './lib/interfaces/user-request.interface';
 export * from './lib/interfaces/user-jwt.interface';
+
+export * from './lib/guards/auth.guard';

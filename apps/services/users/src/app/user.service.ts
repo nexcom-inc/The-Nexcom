@@ -23,6 +23,11 @@ export class UserService {
         where: {
           email,
         },
+        select: {
+          id: true,
+          email: true,
+          password: true
+        }
       });
     } catch (error) {
         Logger.log('une erreur s\'est produite :', error?.message);

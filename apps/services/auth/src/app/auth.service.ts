@@ -1,59 +1,121 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ResendService } from 'nestjs-resend';
+import { compare } from 'bcryptjs';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../lib';
-import { BcryptService, UserJwt } from '@the-nexcom/nest-common';
+import {  LoginUserDto, validateOauthUserDto } from '@the-nexcom/dto';
+import { UserJwt } from '@the-nexcom/nest-common';
 
 @Injectable()
 export class AuthService {
-
   constructor(
-    private readonly primsa: PrismaService,
-    // private readonly bcrypt: BcryptService,
-    private readonly resend: ResendService,
+    @Inject('USER_SERVICE') private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
   ) {}
 
-
   async verifyToken(jwt: string) : Promise<{exp:number}> {
     if (!jwt) {
+
+      console.log("no jwt");
+
       throw new UnauthorizedException();
     }
     try {
-      const { exp } =await this.jwtService.verify(jwt);
+
+      console.log("jwt", jwt);
+
+
+      const { exp } =await this.jwtService.verifyAsync(jwt);
+
+      console.log("exp", exp);
+
 
       return { exp };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+
+      console.log("error", error);
+
       throw new UnauthorizedException();
     }
     }
 
-    async findUserByEmail(email: string) {
-      return await this.primsa.user.findUnique({
-        where: {
-          email,
-        },
+    async getUserFromHeader(jwt: string) {
+      if (!jwt) return
+      try {
+        return this.jwtService.decode(jwt) as UserJwt
+      } catch (error) {
+        throw new BadRequestException()
+      }
+    }
+
+
+  async validateUser(email: string, password: string) {
+    // Convert the Observable to a Promise using firstValueFrom
+    const user = await firstValueFrom(
+      this.userService.send({ cmd: 'get-user-by-email' }, email),
+    );
+
+    const doesUserExist = !!user;
+
+    if (!doesUserExist) return null;
+
+    const isPasswordValid = await compare(
+      password,
+      user.password,
+    );
+
+    if (!isPasswordValid) return null;
+
+    return {id : user.id};
+  }
+
+  async validateOAuthUser(user : validateOauthUserDto){
+    const { email } = user;
+    const existingUser  = await firstValueFrom(
+      this.userService.send({ cmd: 'get-user-by-email' }, email),
+    );
+
+    if (existingUser) {
+      // TODO: Update users providers
+      return {id : existingUser.id};
+    }
+
+    const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
+
+    return { id : newUser.id }
+  }
+
+  async authenticateUser(userId : string) {
+    const access_token = this.jwtService.sign({ userId }, { expiresIn: '15m' });
+    const refresh_token = this.jwtService.sign({ userId }, { expiresIn: '7d' });
+
+    const payload = {
+        access_token,
+        refresh_token
+    }
+
+    return payload
+  }
+
+  async login(user: LoginUserDto) {
+    const { email, password } = user;
+
+    const existingUser = await this.validateUser(email, password);
+
+    if (!existingUser) {
+      throw new RpcException({
+        message: "Invalid credentials",
+        status: 401
       });
     }
 
-    async findUserById(id: string) {
-      return await this.primsa.user.findUnique({
-        where: {
-          id,
-        },
-      });
-    }
 
-    // async getUserFromHeader(jwt: string) {
-    //   if (!jwt) return
-    //   try {
-    //     return this.jwtService.decode(jwt) as UserJwt
-    //   } catch (error) {
-    //     throw new BadRequestException()
-    //   }
-    // }
+    return this.authenticateUser(existingUser.id);
+  }
 }

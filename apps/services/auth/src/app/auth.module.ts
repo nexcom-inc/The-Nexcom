@@ -6,6 +6,8 @@ import { NestCommonModule } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
 import { ResendModule } from 'nestjs-resend';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt.guard';
 
 @Module({
   imports: [
@@ -13,7 +15,7 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
       envFilePath: './.env',
     }),
-    NestCommonModule,
+    NestCommonModule.registerRmq('USER_SERVICE', process.env.RABBITMQ_USER_QUEUE ?? 'user_queue'),
     ResendModule.forRoot({
       apiKey: process.env.RESEND_API_KEY ?? '',
     }),
@@ -27,6 +29,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService],
+  providers: [AuthService, PrismaService, JwtAuthGuard,
+    JwtStrategy],
 })
 export class AuthModule {}

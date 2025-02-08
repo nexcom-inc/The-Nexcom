@@ -10,6 +10,20 @@ export class UserController {
   private readonly nestCommonService: NestCommonService
   ) {}
 
+
+
+  @MessagePattern({cmd: 'get-user-by-email'})
+  async getUserByEmail(
+    @Payload() email : string,
+    @Ctx() context : RmqContext
+  ) {
+
+    console.log("Get user by email", email);
+
+    this.nestCommonService.aknowledgeMessage(context);
+    return this.userService.getUserByEmail(email);
+  }
+
   @MessagePattern({cmd: 'create-user'})
   async createUser(
     @Payload() user : CreateUserDto,
@@ -17,6 +31,8 @@ export class UserController {
   ) {
 
     this.nestCommonService.aknowledgeMessage(context);
+
+    console.log("Create user", user);
     return this.userService.createUser(user);
   }
 

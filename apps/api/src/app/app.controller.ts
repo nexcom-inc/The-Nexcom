@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Get, Inject, Post, UsePipes } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Inject, Post, UseGuards, UsePipes } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema } from '@the-nexcom/dto';
-import { ZodValidationPipe } from '@the-nexcom/nest-common';
+import { AuthGuard, ZodValidationPipe } from '@the-nexcom/nest-common';
 
 @Controller()
 export class AppController {
@@ -12,9 +12,12 @@ export class AppController {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy
   ) {}
 
+  @UseGuards(AuthGuard)
   @Get('/users')
   async getUser () {
-    return this.authService.send({ cmd: 'get-user' }, {});
+    return {
+      message: 'Hello API'
+    };
   }
 
   @Post('/users')
