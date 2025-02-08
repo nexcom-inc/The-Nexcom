@@ -11,20 +11,20 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
+  id String @id @default(cuid())
 
-  email    String    @unique
+  email    String  @unique
   password String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  UserProvider UserProvider[]
 
   @@map("users")
-  UserProvider UserProvider[]
+  Account Account[]
 }
 
-enum ProviderName {
+enum Providers {
   GOOGLE
   GITHUB
   FACEBOOK
@@ -32,47 +32,32 @@ enum ProviderName {
   SSO
 }
 
-model Provider {
-  id        String    @id @default(cuid())
-
-  name      String    @unique
-
-  clientId  String?
-  clientSecret String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-
-  @@map("providers")
-  UserProvider UserProvider[]
-}
-
 model UserProvider {
-  id        String    @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId    String    @unique
-  providerId String    @unique
+  userId            String    @unique
+  provider          Providers @default(EMAILANDPASSWORD)
   accountProviderId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User      @relation(fields: [userId], references: [id])
-  provider  Provider  @relation(fields: [providerId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  @@unique([userId, providerId], map: "user_provider_unique_idx")
+  @@unique([userId, provider], map: "user_provider_unique_idx")
   @@map("user_providers")
 }
 
 model Account {
-  id        String    @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId    String    @unique
+  userId String @unique
 
   firstName String?
   lastName  String?
   fullName  String?
+
+  user User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

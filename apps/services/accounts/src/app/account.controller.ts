@@ -16,8 +16,7 @@ export class AccountController {
     @Payload() account : CreateAccountDto,
     @Ctx() context : RmqContext
   ) {
-    Logger.log(account);
     this.nestCommonService.aknowledgeMessage(context);
-    // this.appService.createAccount(account);
+    this.appService.createAccount(account);
   }
 }

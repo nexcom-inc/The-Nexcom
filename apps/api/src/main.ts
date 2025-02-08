@@ -8,7 +8,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-import * as fs from 'fs';
+import { ErrorInterceptor } from './interceptors';
+import { CustomExceptionFilter } from './filters';
 
 
 const config = new DocumentBuilder()
@@ -23,6 +24,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+  // app.useGlobalInterceptors(new ErrorInterceptor());
+  app.useGlobalFilters(new CustomExceptionFilter());
 
   const document = SwaggerModule.createDocument(app, config);
   // fs.writeFileSync("./docs/swagger-spec.json/", JSON.stringify(document));

@@ -17,7 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@the-nexcom/dto": ["libs/shared/dto/src/index.ts"],
-      "@the-nexcom/nest-common": ["libs/shared/nest-common/src/index.ts"]
+      "@the-nexcom/nest-common": ["libs/shared/nest-common/src/index.ts"],
+      "@the-nexcom/utils": ["libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
