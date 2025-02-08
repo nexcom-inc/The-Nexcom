@@ -119,11 +119,20 @@ export class AuthService {
     return this.authenticateUser(existingUser.id);
   }
 
-  async register(user: CreateUserDto) {
+  async registerEmailPassword(user: CreateUserDto) {
 
     const existingUser = await firstValueFrom(
       this.userService.send({ cmd: 'get-user-by-email' }, user.email),
     );
+
+
+
+    if (!user.password){
+      throw new RpcException({
+        message: "Password is required",
+        status: 400
+      });
+    }
 
     if (existingUser) {
       throw new RpcException({

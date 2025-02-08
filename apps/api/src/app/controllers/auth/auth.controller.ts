@@ -15,7 +15,7 @@ export class AuthController {
   @Post('/register')
   @UsePipes(new ZodValidationPipe(createUserSchema))
   async register(@Body() user: CreateUserDto) {
-    return this.authService.send({ cmd: 'register' }, { user });
+    return this.authService.send({ cmd: 'register-email-password' }, { user });
   }
 
   @Post('/login')

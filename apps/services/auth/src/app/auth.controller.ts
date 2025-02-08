@@ -73,13 +73,13 @@ export class AuthController {
     return this.authService.authenticateUser(userId)
   }
 
-  @MessagePattern({ cmd : 'register' })
-  async register(
+  @MessagePattern({ cmd : 'register-email-password' })
+  async registerEmailPassword(
     @Ctx() context : RmqContext,
     @Payload() {user} : {user:CreateUserDto}){
 
     this.nestCommonService.aknowledgeMessage(context)
 
-    return this.authService.register(user)
+    return this.authService.registerEmailPassword(user)
   }
 }
