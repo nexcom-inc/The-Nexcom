@@ -3,6 +3,7 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema } from '@the-nexcom/dto';
 import { PrismaService } from '@the-nexcom/nest-common';
 import { filterObjectBySchema } from '@the-nexcom/utils';
+import { hash } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -54,6 +55,11 @@ export class UserService {
     }
 
     try {
+
+      if (user.password){
+        user.password = await hash(user.password, 10)
+      }
+
       const newUser =  await this.primsa.user.create({
         data: {
           email: user.email,
