@@ -8,7 +8,7 @@ import { compare } from 'bcryptjs';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 import { JwtService } from '@nestjs/jwt';
-import {  LoginUserDto, validateOauthUserDto } from '@the-nexcom/dto';
+import {  CreateUserDto, LoginUserDto, validateOauthUserDto } from '@the-nexcom/dto';
 import { UserJwt } from '@the-nexcom/nest-common';
 
 @Injectable()
@@ -117,5 +117,23 @@ export class AuthService {
 
 
     return this.authenticateUser(existingUser.id);
+  }
+
+  async register(user: CreateUserDto) {
+
+    const existingUser = await firstValueFrom(
+      this.userService.send({ cmd: 'get-user-by-email' }, user.email),
+    );
+
+    if (existingUser) {
+      throw new RpcException({
+        message: "User already exists",
+        status: 400
+      });
+    }
+
+    const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
+
+    return this.authenticateUser(newUser.id);
   }
 }

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Inject, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { LoginUserDto, LoginUserSchema } from '@the-nexcom/dto';
+import { CreateUserDto, createUserSchema, LoginUserDto, LoginUserSchema } from '@the-nexcom/dto';
 import { ZodValidationPipe } from '@the-nexcom/nest-common';
 import { GoogleAuthGuard } from '../../../guards';
 import { firstValueFrom } from 'rxjs';
@@ -10,6 +10,13 @@ export class AuthController {
   constructor(
    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
   ) {}
+
+
+  @Post('/register')
+  @UsePipes(new ZodValidationPipe(createUserSchema))
+  async register(@Body() user: CreateUserDto) {
+    return this.authService.send({ cmd: 'register' }, { user });
+  }
 
   @Post('/login')
   @UsePipes(new ZodValidationPipe(LoginUserSchema))

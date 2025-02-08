@@ -72,4 +72,14 @@ export class AuthController {
 
     return this.authService.authenticateUser(userId)
   }
+
+  @MessagePattern({ cmd : 'register' })
+  async register(
+    @Ctx() context : RmqContext,
+    @Payload() {user} : {user:CreateUserDto}){
+
+    this.nestCommonService.aknowledgeMessage(context)
+
+    return this.authService.register(user)
+  }
 }
