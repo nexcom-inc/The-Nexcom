@@ -17,6 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@the-nexcom/dto": ["libs/shared/dto/src/index.ts"],
+      "@the-nexcom/interfaces": ["libs/shared/interfaces/src/index.ts"],
       "@the-nexcom/nest-common": ["libs/shared/nest-common/src/index.ts"],
       "@the-nexcom/utils": ["libs/utils/src/index.ts"]
     }

@@ -14,7 +14,7 @@ export const filterObjectBySchema = <T extends ZodSchema>(
   const filteredObj: Partial<z.infer<T>> = {};
 
   Object.keys(shape).forEach((key) => {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       (filteredObj as Record<string, unknown>)[key] = obj[key];
     }
   });

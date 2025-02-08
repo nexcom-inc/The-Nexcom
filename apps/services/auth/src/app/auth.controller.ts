@@ -4,7 +4,7 @@ import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices'
 import { NestCommonService } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
 import { JwtAuthGuard } from './guards/jwt.guard';
-import { CreateUserDto, LoginUserDto, validateOauthUserDto } from '@the-nexcom/dto';
+import { CreateUserDto, LoginUserDto, OauthUserDto } from '@the-nexcom/dto';
 
 @Controller()
 export class AuthController {
@@ -54,7 +54,7 @@ export class AuthController {
   @MessagePattern({ cmd : 'validate-aouth-user' })
   async validateOauthUser(
     @Ctx() context : RmqContext,
-    @Payload() user : validateOauthUserDto){
+    @Payload() user : OauthUserDto){
       console.log("validateOauthUser", user);
 
     this.nestCommonService.aknowledgeMessage(context)

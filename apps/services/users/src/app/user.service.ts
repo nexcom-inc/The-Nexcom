@@ -1,5 +1,6 @@
 import {  Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { Providers } from '@prisma/client';
 import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema } from '@the-nexcom/dto';
 import { PrismaService } from '@the-nexcom/nest-common';
 import { filterObjectBySchema } from '@the-nexcom/utils';
@@ -31,6 +32,10 @@ export class UserService {
       });
     } catch (error) {
         Logger.log('une erreur s\'est produite :', error?.message);
+        throw new RpcException({
+          message: error?.message,
+          status: 500
+        })
     }
 
   }
@@ -104,6 +109,29 @@ export class UserService {
       await this.primsa.userProvider.create({
         data: userProvider
       });
+    } catch (error) {
+        Logger.log('une erreur s\'est produite :', error?.message);
+    }
+  }
+
+  async UpdateUserProviders(userProviders: CreateUserProviderDto) {
+
+    try {
+        const existingProvider = await this.primsa.userProvider.findUnique({
+            where: {
+                userId_provider: {
+                    userId: userProviders.userId,
+                    provider: userProviders.provider as Providers
+                }
+            }
+        })
+
+        if (!existingProvider) {
+          console.log("create user provider", userProviders);
+
+
+            await this.createUserProvider(userProviders)
+        }
     } catch (error) {
         Logger.log('une erreur s\'est produite :', error?.message);
     }

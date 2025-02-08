@@ -8,7 +8,7 @@ import { compare } from 'bcryptjs';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 import { JwtService } from '@nestjs/jwt';
-import {  CreateUserDto, LoginUserDto, validateOauthUserDto } from '@the-nexcom/dto';
+import {  CreateUserDto, LoginUserDto, OauthUserDto } from '@the-nexcom/dto';
 import { UserJwt } from '@the-nexcom/nest-common';
 
 @Injectable()
@@ -75,14 +75,17 @@ export class AuthService {
     return {id : user.id};
   }
 
-  async validateOAuthUser(user : validateOauthUserDto){
+  async validateOAuthUser(user : OauthUserDto){
     const { email } = user;
     const existingUser  = await firstValueFrom(
       this.userService.send({ cmd: 'get-user-by-email' }, email),
     );
 
     if (existingUser) {
-      // TODO: Update users providers
+      this.userService.emit('oauth_user_logged_in',{
+        userId : existingUser.id,
+        ...user
+      } );
       return {id : existingUser.id};
     }
 

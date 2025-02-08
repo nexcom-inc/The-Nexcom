@@ -5,7 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import googleOauthConfig from '../app/config/google-oauth.config';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
-import { validateOauthUserDto } from '@the-nexcom/dto';
+import { OauthUserDto } from '@the-nexcom/dto';
 
 
 
@@ -31,7 +31,7 @@ export class  GoogleStrategy extends PassportStrategy(Strategy){
     console.log("Profile", profile);
 
 
-      const googleUser : validateOauthUserDto = {
+      const googleUser : OauthUserDto = {
         email : profile.emails[0].value,
         firstName : profile.name.givenName,
         lastName : profile.name.familyName,

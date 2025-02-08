@@ -1,8 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
-import {  Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
-import { CreateUserDto } from '@the-nexcom/dto';
+import {  Ctx, EventPattern, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { CreateUserDto, createUserProviderSchema, OauthUserDto, OauthUserWithIdDto } from '@the-nexcom/dto';
 import { NestCommonService } from '@the-nexcom/nest-common';
+import { filterObjectBySchema } from '@the-nexcom/utils';
 
 @Controller()
 export class UserController {
@@ -34,6 +35,24 @@ export class UserController {
 
     console.log("Create user", user);
     return this.userService.createUser(user);
+  }
+
+
+  @EventPattern('oauth_user_logged_in')
+  oauthLogin(
+    @Payload() user : OauthUserWithIdDto,
+    @Ctx() context : RmqContext
+  ) {
+    this.nestCommonService.aknowledgeMessage(context);
+
+    console.log("user oauth", user);
+
+    const ft = filterObjectBySchema(user, createUserProviderSchema)
+
+    console.log("fttt ", ft);
+
+
+    this.userService.UpdateUserProviders(createUserProviderSchema.parse(ft))
   }
 
 }
