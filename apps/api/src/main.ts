@@ -27,6 +27,11 @@ async function bootstrap() {
   // app.useGlobalInterceptors(new ErrorInterceptor());
   app.useGlobalFilters(new CustomExceptionFilter());
 
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+  });
+
   const document = SwaggerModule.createDocument(app, config);
   // fs.writeFileSync("./docs/swagger-spec.json/", JSON.stringify(document));
   SwaggerModule.setup(globalPrefix, app, document);

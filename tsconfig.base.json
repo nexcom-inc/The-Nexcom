@@ -19,6 +19,8 @@
       "@the-nexcom/dto": ["libs/shared/dto/src/index.ts"],
       "@the-nexcom/interfaces": ["libs/shared/interfaces/src/index.ts"],
       "@the-nexcom/nest-common": ["libs/shared/nest-common/src/index.ts"],
+      "@the-nexcom/ui": ["libs/shared/ui/src/index.ts"],
+      "@the-nexcom/ui/server": ["libs/shared/ui/src/server.ts"],
       "@the-nexcom/utils": ["libs/utils/src/index.ts"]
     }
   },
