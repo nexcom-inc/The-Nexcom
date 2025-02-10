@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { NestCommonService } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
-import { JwtAuthGuard } from './guards/jwt.guard';
+import { RcpJwtAuthGuard } from './guards/jwt.guard';
 import { CreateUserDto, LoginUserDto, OauthUserDto } from '@the-nexcom/dto';
 
 @Controller()
@@ -14,7 +14,7 @@ export class AuthController {
   ) {}
 
   @MessagePattern({ cmd : 'verify-token' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RcpJwtAuthGuard)
   async verifyToken(
     @Ctx() context : RmqContext,
     @Payload() payload : {jwt:string}){
@@ -38,7 +38,7 @@ export class AuthController {
     return this.authService.getUserFromHeader(payload.jwt)
   }
 
-
+  // ! to be removed
   @MessagePattern({ cmd : 'login-email-password' })
   async login(
     @Ctx() context : RmqContext,
@@ -49,6 +49,18 @@ export class AuthController {
     this.nestCommonService.aknowledgeMessage(context)
 
     return this.authService.login(user)
+  }
+
+  @MessagePattern({ cmd : 'validate-email-password-user' })
+  async validateEmailAndPassword(
+    @Ctx() context : RmqContext,
+    @Payload() user :LoginUserDto){
+      console.log("validate email and password", user);
+
+
+    this.nestCommonService.aknowledgeMessage(context)
+
+    return this.authService.validateEmailAndPasswordUser(user.email, user.password)
   }
 
   @MessagePattern({ cmd : 'validate-aouth-user' })
@@ -62,11 +74,22 @@ export class AuthController {
     return this.authService.validateOAuthUser(user)
   }
 
+  // !shoul be replaced by authenticateUser
   @MessagePattern({ cmd : 'oauth-login' })
   async OAuthlogin(
     @Ctx() context : RmqContext,
     @Payload() {userId} : {userId:string}){
 
+
+    this.nestCommonService.aknowledgeMessage(context)
+
+    return this.authService.authenticateUser(userId)
+  }
+
+  @MessagePattern({ cmd : 'authenticate-user' })
+  async AuthenticateUser(
+    @Ctx() context : RmqContext,
+    @Payload() {userId} : {userId:string}){
 
     this.nestCommonService.aknowledgeMessage(context)
 

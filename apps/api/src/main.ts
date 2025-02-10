@@ -8,8 +8,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-import { ErrorInterceptor } from './interceptors';
 import { CustomExceptionFilter } from './filters';
+import cookieParser from 'cookie-parser';
+
 
 
 const config = new DocumentBuilder()
@@ -32,12 +33,17 @@ async function bootstrap() {
     credentials: true,
   });
 
+
+
+  app.use(cookieParser());
+
   const document = SwaggerModule.createDocument(app, config);
   // fs.writeFileSync("./docs/swagger-spec.json/", JSON.stringify(document));
   SwaggerModule.setup(globalPrefix, app, document);
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
+
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
   );

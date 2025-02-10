@@ -7,7 +7,7 @@ import { PrismaService } from '../lib';
 import { ResendModule } from 'nestjs-resend';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { JwtAuthGuard } from './guards/jwt.guard';
+import { RcpJwtAuthGuard } from './guards/jwt.guard';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { JwtAuthGuard } from './guards/jwt.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtAuthGuard,
+  providers: [AuthService, PrismaService, RcpJwtAuthGuard,
     JwtStrategy],
 })
 export class AuthModule {}

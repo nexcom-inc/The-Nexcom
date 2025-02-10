@@ -17,7 +17,7 @@ export class AuthService {
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
   ) {}
-
+  // ? is it really needed ?
   async verifyToken(jwt: string) : Promise<{exp:number}> {
     if (!jwt) {
 
@@ -26,6 +26,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     try {
+
 
       console.log("jwt", jwt);
 
@@ -55,7 +56,7 @@ export class AuthService {
     }
 
 
-  async validateUser(email: string, password: string) {
+  async validateEmailAndPasswordUser(email: string, password: string) {
     // Convert the Observable to a Promise using firstValueFrom
     const user = await firstValueFrom(
       this.userService.send({ cmd: 'get-user-by-email' }, email),
@@ -109,7 +110,7 @@ export class AuthService {
   async login(user: LoginUserDto) {
     const { email, password } = user;
 
-    const existingUser = await this.validateUser(email, password);
+    const existingUser = await this.validateEmailAndPasswordUser(email, password);
 
     if (!existingUser) {
       throw new RpcException({

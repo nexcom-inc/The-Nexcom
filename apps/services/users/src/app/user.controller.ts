@@ -18,11 +18,17 @@ export class UserController {
     @Payload() email : string,
     @Ctx() context : RmqContext
   ) {
-
-    console.log("Get user by email", email);
-
     this.nestCommonService.aknowledgeMessage(context);
     return this.userService.getUserByEmail(email);
+  }
+
+  @MessagePattern({cmd: 'get-user-by-id'})
+  async getUserById(
+    @Payload() id : string,
+    @Ctx() context : RmqContext
+  ) {
+    this.nestCommonService.aknowledgeMessage(context);
+    return this.userService.getUserById(id);
   }
 
   @MessagePattern({cmd: 'create-user'})

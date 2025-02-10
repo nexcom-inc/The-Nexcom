@@ -2,9 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { AuthGuard } from '@nestjs/passport';
 
+
+// This class is used  to validate the jwt token in rpc calls
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  private readonly logger = new Logger(JwtAuthGuard.name);
+export class RcpJwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger(RcpJwtAuthGuard.name);
 
   handleRequest(err, user, info, context) {
     this.logger.debug('JwtAuthGuard triggered');

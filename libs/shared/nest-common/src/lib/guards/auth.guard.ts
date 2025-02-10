@@ -1,15 +1,18 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
-import { catchError, of, switchMap } from "rxjs";
+// import { ClientProxy } from "@nestjs/microservices";
+// import { catchError, of, switchMap } from "rxjs";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthGuard  implements CanActivate {
 
   constructor(
-    @Inject('AUTH_SERVICE') private readonly auth: ClientProxy
+    // ! i'll do the verification right here
+    // @Inject('AUTH_SERVICE') private readonly auth: ClientProxy
+    private readonly jwtService: JwtService,
   ) {}
 
-  canActivate(context : ExecutionContext) {
+  async canActivate(context : ExecutionContext) {
       if (context.getType() !== 'http') {
         return false;
       }
@@ -26,27 +29,49 @@ export class AuthGuard  implements CanActivate {
 
       const [_, jwt] = parts;
 
-      console.log("verify token", jwt);
 
+      // ! this might be a bad idea
+      // ! i'll do the verification in this guard
+    //   return this.auth.send({cmd : 'verify-token'}, {jwt}).pipe(
+    //     switchMap(({exp}) => {
 
-      return this.auth.send({cmd : 'verify-token'}, {jwt}).pipe(
-        switchMap(({exp}) => {
+    //       console.log("exp", exp);
 
-          console.log("exp", exp);
+    //       if (!exp) return of(false);
 
-          if (!exp) return of(false);
+    //       const TOKEN_EXP_MS = exp * 1000;
 
-          const TOKEN_EXP_MS = exp * 1000;
+    //       const isjwtValid = Date.now() < TOKEN_EXP_MS;
 
-          const isjwtValid = Date.now() < TOKEN_EXP_MS;
+    //       return of(isjwtValid);
 
-          return of(isjwtValid);
+    //     }),
+    //     catchError(() => {
 
-        }),
-        catchError(() => {
+    //       throw new UnauthorizedException();
+    //     })
+    // )
 
-          throw new UnauthorizedException();
-        })
-    )
+    // * i'll do the verification right here
+    try {
+      // Vérification asynchrone du token
+      const payload = await this.jwtService.verifyAsync(jwt);
+
+      // (Optionnel) Vérification manuelle de l'expiration si besoin
+      if (!payload || !payload.exp) {
+        return false;
+      }
+      const tokenExpirationMs = payload.exp * 1000;
+      if (Date.now() >= tokenExpirationMs) {
+        return false;
+      }
+
+      // Si tout est OK, on autorise l'accès
+      return true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // En cas d'erreur (token invalide, expiré, etc.), on rejette la requête
+      throw new UnauthorizedException();
+    }
   }
 }
