@@ -2,14 +2,13 @@ import { Inject, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { NestCommonModule, REDIS, RedisCacheModule, RedisModule } from '@the-nexcom/nest-common';
+import { CustomRedisStore, NestCommonModule, REDIS, RedisModule, RedisService } from '@the-nexcom/nest-common';
 import { ErrorInterceptor } from '../interceptors';
 import { AuthController } from './controllers/auth/auth.controller';
 import googleOauthConfig from './config/google-oauth.config';
 import { GoogleStrategy } from '../strategies/google.strategy';
 import { RedisClientType } from 'redis';
 import session from 'express-session';
-import {RedisStore} from 'connect-redis';
 import { SessionSerializer } from '../serializers/session.serializers';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from '../strategies/local.stategy';
@@ -39,7 +38,7 @@ import passport from 'passport';
 
     // REDIS
     RedisModule,
-    RedisCacheModule,
+    // RedisCacheModule,
 
     // PASSPORT
     PassportModule.register({
@@ -66,13 +65,17 @@ import passport from 'passport';
     {provide : 'APP_INTERCEPTOR', useClass: ErrorInterceptor}],
 })
 export class AppModule implements NestModule {
-  constructor(@Inject(REDIS) private readonly redisClient: RedisClientType) {}
+  constructor(
+    @Inject(REDIS) private readonly redisClient: RedisClientType,
+    private readonly redisService: RedisService
+  ) {}
 
   configure(consumer: MiddlewareConsumer) {
 
-    const redisStore = new RedisStore({
-      client: this.redisClient
-    })
+    const redisStore = new CustomRedisStore({
+      client: this.redisClient,
+      redisService: this.redisService, // ➜ On passe RedisService à CustomRedisStore
+    });
     consumer
       .apply(
         session({
