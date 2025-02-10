@@ -5,7 +5,7 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
+import { ApiModule } from './app/api.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { CustomExceptionFilter } from './filters';
@@ -22,7 +22,7 @@ const config = new DocumentBuilder()
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(ApiModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   // app.useGlobalInterceptors(new ErrorInterceptor());

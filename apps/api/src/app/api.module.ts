@@ -1,11 +1,8 @@
 import { Inject, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { CustomRedisStore, NestCommonModule, REDIS, RedisModule, RedisService } from '@the-nexcom/nest-common';
 import { ErrorInterceptor } from '../interceptors';
 import { AuthController } from './controllers/auth/auth.controller';
-import googleOauthConfig from './config/google-oauth.config';
 import { GoogleStrategy } from '../strategies/google.strategy';
 import { RedisClientType } from 'redis';
 import session from 'express-session';
@@ -16,6 +13,7 @@ import { UsersController } from './controllers/users/users.controller';
 import { JwtAuthGuard, SessionGuard } from '../guards';
 
 import passport from 'passport';
+import googleOauthConfig from '../config/google/google-oauth.config';
 
 @Module({
   imports: [
@@ -24,6 +22,7 @@ import passport from 'passport';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: './.env',
+      load: [googleOauthConfig],
     }),
 
     // MICROSERVICES
@@ -31,24 +30,17 @@ import passport from 'passport';
     NestCommonModule.registerRmq('ACCOUNT_SERVICE', process.env.RABBITMQ_ACCOUNT_QUEUE ?? 'account_queue'),
     NestCommonModule.registerRmq('USER_SERVICE', process.env.RABBITMQ_USER_QUEUE ?? 'user_queue'),
 
-    // GOOGLE OAUTH
-    ConfigModule.forFeature(
-      googleOauthConfig
-    ),
 
     // REDIS
     RedisModule,
     // RedisCacheModule,
 
     // PASSPORT
-    PassportModule.register({
-      session: true
-    })
+    PassportModule.register({session: true})
   ],
-  controllers: [AppController, AuthController, UsersController],
+  controllers: [ AuthController, UsersController],
   providers: [
     // SERVICES
-    AppService,
 
     // STRATEGIES
     GoogleStrategy,
@@ -64,7 +56,7 @@ import passport from 'passport';
     // INTERCEPTORS
     {provide : 'APP_INTERCEPTOR', useClass: ErrorInterceptor}],
 })
-export class AppModule implements NestModule {
+export class ApiModule implements NestModule {
   constructor(
     @Inject(REDIS) private readonly redisClient: RedisClientType,
     private readonly redisService: RedisService
