@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { createClient } from 'redis';
 import { REDIS } from '../../constants/redis.constants';
 import { RedisService } from '../services/redis.service';
@@ -10,7 +10,7 @@ import { RedisService } from '../services/redis.service';
       useFactory: async () => {
         const client = createClient({ url: process.env['REDIS_URI'] || 'redis://localhost:6379' });
         await client.connect();
-        console.log('✅ Connected to Redis ⛁');
+        Logger.log('✅ Connected to Redis ⛁');
         return client;
       },
     },

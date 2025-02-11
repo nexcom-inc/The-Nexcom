@@ -10,10 +10,11 @@ import { SessionSerializer } from '../serializers/session.serializers';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from '../strategies/local.stategy';
 import { UsersController } from './controllers/users/users.controller';
-import { JwtAuthGuard, SessionGuard } from '../guards';
+import { JwtAuthGuard, JwtRefreshGuard, SessionGuard } from '../guards';
 
 import passport from 'passport';
-import googleOauthConfig from '../config/google/google-oauth.config';
+import googleOauthConfig from './config/google/google-oauth.config';
+import { RefreshJwtBearerStrategy } from '../strategies/refresh-bearer.startegy';
 
 @Module({
   imports: [
@@ -45,10 +46,12 @@ import googleOauthConfig from '../config/google/google-oauth.config';
     // STRATEGIES
     GoogleStrategy,
     LocalStrategy,
+    RefreshJwtBearerStrategy,
 
     // GUARDS
     SessionGuard,
-    JwtAuthGuard,
+    // JwtAuthGuard,
+    // JwtRefreshGuard,
 
     // SERIALIZERS
     SessionSerializer,

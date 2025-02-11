@@ -11,6 +11,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { CustomExceptionFilter } from './filters';
 import cookieParser from 'cookie-parser';
 
+import * as fs from 'fs'
+
 
 
 const config = new DocumentBuilder()
@@ -38,7 +40,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const document = SwaggerModule.createDocument(app, config);
-  // fs.writeFileSync("./docs/swagger-spec.json/", JSON.stringify(document));
+  fs.writeFileSync("./docs/swagger-spec.json", JSON.stringify(document));
   SwaggerModule.setup(globalPrefix, app, document);
 
   const port = process.env.PORT || 3000;

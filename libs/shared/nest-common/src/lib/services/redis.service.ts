@@ -8,11 +8,9 @@ export class RedisService {
 
   async set(key: string, value: string, ttl?: number) {
     if (ttl) {
-      console.log("setting ttl");
 
       await this.redisClient.set(key, value, { PX: ttl * 1000 });
     } else {
-      console.log("setting w/o ttl");
       await this.redisClient.set(key, value);
     }
   }
@@ -30,8 +28,6 @@ export class RedisService {
     const sessionKey = `session:user:${userId}:${sessionId}`;
     const userSessionsKey = `sessions:user:${userId}`;
 
-    console.log("sessionKey", sessionKey);
-    console.log("sessionData", sessionData);
 
 
 

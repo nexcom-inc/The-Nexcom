@@ -28,7 +28,6 @@ export class  GoogleStrategy extends PassportStrategy(Strategy){
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
 
-    console.log("Profile", profile);
 
 
       const googleUser : OauthUserDto = {
@@ -43,7 +42,6 @@ export class  GoogleStrategy extends PassportStrategy(Strategy){
         this.authService.send({ cmd: 'validate-aouth-user' }, googleUser)
       )
 
-      console.log("validate user", user);
 
       done(null, user);
   }

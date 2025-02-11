@@ -127,13 +127,12 @@ export class UserService {
         })
 
         if (!existingProvider) {
-          console.log("create user provider", userProviders);
 
 
             await this.createUserProvider(userProviders)
         }
     } catch (error) {
-        Logger.log('une erreur s\'est produite :', error?.message);
+        Logger.error('une erreur s\'est produite :', error?.message);
     }
   }
 }

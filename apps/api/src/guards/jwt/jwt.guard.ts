@@ -36,7 +36,6 @@ export class JwtAuthGuard  implements CanActivate {
       return this.auth.send({cmd : 'verify-token'}, {jwt}).pipe(
         switchMap(({exp}) => {
 
-          console.log("exp", exp);
 
           if (!exp) return of(false);
 

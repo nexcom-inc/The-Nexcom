@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards, Use
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
-import { GoogleAuthGuard, LocalAuthGuard } from '../../../guards';
+import { GoogleAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../../guards';
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 
@@ -31,14 +31,26 @@ export class AuthController {
   ) {
     const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
+
+
     res.cookie('at', response.access_token, { httpOnly: true });
     res.cookie('rt', response.refresh_token, { httpOnly: true });
 
+
+
     res.send({
       message : "authenticated",
-      uid : req.user.id
+      uid : req.user.id,
+      access_token : response.access_token,
+      refresh_token : response.refresh_token
     })
 
+  }
+
+  @UseGuards(JwtRefreshGuard)
+  @Post('/refresh')
+  refreshToken(@Req() req) {
+    return firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
   }
 
   @UseGuards(GoogleAuthGuard)
@@ -53,10 +65,8 @@ export class AuthController {
     @Req() req,
     @Res() res
   ) {
-    console.log("Google login callback");
     const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
-    console.log("response", response);
 
     res.redirect(`http://localhost:3001/auth/login?accessToken=${response.access_token}&refreshToken=${response.access_token}`);
   }

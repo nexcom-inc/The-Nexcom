@@ -33,7 +33,6 @@ export class CustomRedisStore extends RedisStore {
   // Override de set() pour stocker les sessions + tracking
   override async set(sessionId: string, sessionData: any, callback: (err?: any) => void) {
 
-    console.log("sessionData userId", sessionData.passport?.user?.id);
 
 
 
@@ -47,8 +46,6 @@ export class CustomRedisStore extends RedisStore {
 
       if (userId) {
         try {
-          console.log("userId", userId);
-
           await this.redisService.storeUserSession(userId, sessionId, sessionData, ttl);
         } catch (error) {
           console.error('Erreur lors de l’enregistrement de la session utilisateur:', error);
