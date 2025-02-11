@@ -252,11 +252,24 @@ export class AuthService implements AuthServiceInterface {
     return crypto.randomBytes(length).toString('hex');
   }
 
-  async hashToken(token: string, salt?: string) {
+  async hashToken(token: string) {
     return  await argon2.hash(token);
   }
 
+  async compareSessionToken(token: string, hashedToken: string) {
+    console.log("token", token);
+    console.log("hashedToken", hashedToken);
 
+    const res =  await argon2.verify(hashedToken, token);
+
+    console.log("TOkne matched", res);
+
+
+    return res
+  }
+
+
+  // TODO :  refact this to take one sessionToken
   async setSessionTokenToRedis(userId: string, sessionId: string, sat: string, sct: string): Promise<void> {
 
     const [hashedSat, hashedSct] = await Promise.all([
@@ -286,5 +299,44 @@ export class AuthService implements AuthServiceInterface {
     await this.setSessionTokenToRedis(userId, sessionId, sat, sct);
 
     return { sat, sct };
+  }
+
+  async refreshSessionAccessToken(userId: string, sessionId: string, hashedSatKey: string): Promise<{sat: string}> {
+    const sat = this.generateCryptoToken();
+    await this.redisClient.set(hashedSatKey, sat, {
+      // exp in one day
+      EX: 60 * 60 * 24
+    });
+
+    return  {sat} ;
+  }
+
+  // TODO : refact this to delegates some logiques
+  async validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; sat: string | undefined; }> {
+      const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+      const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+
+      const hashedSat = await this.redisClient.get(hashedSatKey);
+
+      if(hashedSat && await this.compareSessionToken(sat, hashedSat)) {
+        return {
+          err: null,
+          sat:undefined
+        }
+      }
+
+      const hashedSct = await this.redisClient.get(hashedSctKey);
+      if(hashedSct && await this.compareSessionToken(sct, hashedSct)) {
+
+        return {
+          err: null,
+          sat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
+        }
+      }
+
+      return {
+        err: true,
+        sat: undefined
+      }
   }
 }

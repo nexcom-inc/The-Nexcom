@@ -29,17 +29,18 @@ export class AuthController {
     @Req() req,
     @Res() res : Response,
   ) {
-    const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
+    await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
-
+    const userId = req.user.id;
+    const sessionId = req.session.id;
 
 
     const {sat, sct} = await firstValueFrom(this.authService.send({ cmd: 'update-session-token' }, {
-      userId: req.user.id,
-      sessionId: req.session.id
+      userId,
+      sessionId
     }));
 
-    res.cookie('_sat', sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
+    res.cookie('_sat',sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
     res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'none' });
 
     res.send({

@@ -118,10 +118,18 @@ export class AuthController {
 
   // SESSION SECURITY ENHANCEMENT
   @MessagePattern({ cmd : 'update-session-token' })
-  async updateSessionToken(
+  updateSessionToken(
     @Ctx() context : RmqContext,
     @Payload() {userId, sessionId} : {userId:string, sessionId:string}){
       this.nestCommonService.aknowledgeMessage(context)
       return this.authService.updateSessionTokenToRedis(userId, sessionId)
+    }
+
+  @MessagePattern({ cmd : 'validate-session-tokens' })
+  validateSessionTokens(
+    @Ctx() context : RmqContext,
+    @Payload() {userId, sessionId, sat, sct} : {userId:string, sessionId:string, sat:string, sct:string}){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.validateSessionTokens(userId, sessionId, sat, sct)
     }
 }

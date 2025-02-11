@@ -120,6 +120,18 @@ export interface AuthServiceInterface {
    * @param sct - The session continuous token.
    * @returns A promise that resolves with the new session access token.
    */
-  refreshSessionAccessToken(userId: string, sessionId: string, sct: string): Promise<{ sat: string }>;
+  refreshSessionAccessToken(userId: string, sessionId: string, hashedSatKey: string): Promise<{ sat: string }>;
 
+  /**
+   * Validates the session tokens.
+   * @param userId - The ID of the user.
+   * @param sessionId - The session ID.
+   * @param sat - The session access token.
+   * @param sct - The session continuous token.
+   * @returns return a promise that resolves with the session access token and session continuous token
+   */
+  validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; sat: string | undefined; }>
+
+
+  compareSessionToken(token: string, hashedToken: string): Promise<boolean>;
 }
