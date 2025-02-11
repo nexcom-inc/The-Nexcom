@@ -318,21 +318,35 @@ export class AuthService implements AuthServiceInterface {
 
       const hashedSat = await this.redisClient.get(hashedSatKey);
 
-      if(hashedSat && await this.compareSessionToken(sat, hashedSat)) {
-        return {
-          err: null,
-          sat:undefined
+      if(hashedSat) {
+
+        console.log("======= sat exits ======", hashedSat);
+
+
+        if (await this.compareSessionToken(sat, hashedSat)) {
+          return {
+            err: null,
+            sat:undefined
+          }
         }
       }
 
+      console.log("======= sat  not exits or not valid ======");
       const hashedSct = await this.redisClient.get(hashedSctKey);
-      if(hashedSct && await this.compareSessionToken(sct, hashedSct)) {
+      if(!hashedSct) {
+        return {
+          err: true,
+          sat: undefined
+        }
+      }
 
+      if (await this.compareSessionToken(sct, hashedSct)) {
         return {
           err: null,
           sat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
         }
       }
+      console.log("======= sat  not exits or not valid ======");
 
       return {
         err: true,

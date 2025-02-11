@@ -15,6 +15,8 @@ import { JwtAuthGuard, JwtRefreshGuard, SessionGuard } from '../guards';
 import passport from 'passport';
 import googleOauthConfig from './config/google/google-oauth.config';
 import { RefreshJwtBearerStrategy } from '../strategies/refresh-bearer.startegy';
+import { RabbitMQController } from './controllers/rmq/rmq.controller';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -37,9 +39,12 @@ import { RefreshJwtBearerStrategy } from '../strategies/refresh-bearer.startegy'
     // RedisCacheModule,
 
     // PASSPORT
-    PassportModule.register({session: true})
+    PassportModule.register({session: true}),
+
+    // MODULES
+    HttpModule
   ],
-  controllers: [ AuthController, UsersController],
+  controllers: [ AuthController, UsersController, RabbitMQController],
   providers: [
     // SERVICES
 

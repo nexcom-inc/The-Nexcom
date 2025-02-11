@@ -45,8 +45,9 @@ export class SessionGuard implements CanActivate {
 
         return of(true);
       }),
-      catchError(() => {
+      catchError((e) => {
 
+        console.log(e);
         throw new UnauthorizedException();
       })
     )
