@@ -13,8 +13,11 @@ import { REDIS, UserJwt } from '@the-nexcom/nest-common';
 import * as argon2 from 'argon2';
 import { RedisClientType } from 'redis';
 
+import * as crypto from 'crypto';
+import { AuthServiceInterface } from './interfaces/auth-service.interface';
+
 @Injectable()
-export class AuthService {
+export class AuthService implements AuthServiceInterface {
   constructor(
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
@@ -238,5 +241,13 @@ export class AuthService {
     const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
 
     return this.authenticateUser(newUser.id);
+  }
+
+
+  // SESSION SECURITY ENHANCEMENT
+
+
+  generateCryptoToken(length = 64) {
+    return crypto.randomBytes(length).toString('hex');
   }
 }

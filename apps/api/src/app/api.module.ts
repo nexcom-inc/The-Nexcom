@@ -70,6 +70,7 @@ export class ApiModule implements NestModule {
     const redisStore = new CustomRedisStore({
       client: this.redisClient,
       redisService: this.redisService, // ➜ On passe RedisService à CustomRedisStore
+      prefix: 'auth:session:sid:',
     });
     consumer
       .apply(
