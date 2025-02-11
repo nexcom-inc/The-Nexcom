@@ -12,17 +12,12 @@ export class RcpJwtAuthGuard extends AuthGuard('jwt') {
     this.logger.debug('JwtAuthGuard triggered');
 
     if (err) {
-      this.logger.error(`Error: ${err.message}`);
       throw new RpcException({
         message: err.message,
         status: 401
       })
     }
-    if (info) {
-      this.logger.warn(`Info: ${info.message}`);
-    }
     if (!user) {
-      this.logger.warn('No user found');
       throw new RpcException({
         message: 'No user found',
         status: 401

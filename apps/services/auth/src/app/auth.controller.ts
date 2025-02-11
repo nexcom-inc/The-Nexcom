@@ -20,7 +20,6 @@ export class AuthController {
     @Payload() payload : {jwt:string}){
 
 
-      console.log("verify token", payload.jwt);
 
 
     this.nestCommonService.aknowledgeMessage(context)
@@ -43,7 +42,6 @@ export class AuthController {
   async login(
     @Ctx() context : RmqContext,
     @Payload() {user} : {user:LoginUserDto}){
-      console.log("login", user);
 
 
     this.nestCommonService.aknowledgeMessage(context)
@@ -55,7 +53,6 @@ export class AuthController {
   async validateEmailAndPassword(
     @Ctx() context : RmqContext,
     @Payload() user :LoginUserDto){
-      console.log("validate email and password", user);
 
 
     this.nestCommonService.aknowledgeMessage(context)
@@ -67,7 +64,6 @@ export class AuthController {
   async validateOauthUser(
     @Ctx() context : RmqContext,
     @Payload() user : OauthUserDto){
-      console.log("validateOauthUser", user);
 
     this.nestCommonService.aknowledgeMessage(context)
 
@@ -89,7 +85,9 @@ export class AuthController {
   @MessagePattern({ cmd : 'authenticate-user' })
   async AuthenticateUser(
     @Ctx() context : RmqContext,
-    @Payload() {userId} : {userId:string}){
+    @Payload() userId : string){
+
+
 
     this.nestCommonService.aknowledgeMessage(context)
 
@@ -105,4 +103,33 @@ export class AuthController {
 
     return this.authService.registerEmailPassword(user)
   }
+
+  @MessagePattern({ cmd : 'verify-refresh-token' })
+  async verifyRefreshToken(
+    @Ctx() context : RmqContext,
+    @Payload() {userId, refreshToken} : {userId:string, refreshToken:string}){
+
+
+
+    this.nestCommonService.aknowledgeMessage(context)
+
+    return this.authService.verifyRefreshToken(userId, refreshToken)
+  }
+
+  // SESSION SECURITY ENHANCEMENT
+  @MessagePattern({ cmd : 'update-session-token' })
+  updateSessionToken(
+    @Ctx() context : RmqContext,
+    @Payload() {userId, sessionId} : {userId:string, sessionId:string}){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.updateSessionTokenToRedis(userId, sessionId)
+    }
+
+  @MessagePattern({ cmd : 'validate-session-tokens' })
+  validateSessionTokens(
+    @Ctx() context : RmqContext,
+    @Payload() {userId, sessionId, sat, sct} : {userId:string, sessionId:string, sat:string, sct:string}){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.validateSessionTokens(userId, sessionId, sat, sct)
+    }
 }

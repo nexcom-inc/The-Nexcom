@@ -16,3 +16,7 @@ export * from './lib/interfaces/user-jwt.interface';
 export * from './lib/guards/auth.guard';
 
 export * from './constants/redis.constants'
+
+export * from './lib/stores/redis-session.store';
+
+export * from './config/jwt-refresh.config'

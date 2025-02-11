@@ -9,51 +9,127 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 import { JwtService } from '@nestjs/jwt';
 import {  CreateUserDto, LoginUserDto, OauthUserDto } from '@the-nexcom/dto';
-import { UserJwt } from '@the-nexcom/nest-common';
+import { REDIS, UserJwt } from '@the-nexcom/nest-common';
+import * as argon2 from 'argon2';
+import { RedisClientType } from 'redis';
+
+import * as crypto from 'crypto';
+import { AuthServiceInterface } from './interfaces/auth-service.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements AuthServiceInterface {
   constructor(
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
+    @Inject(REDIS) private readonly redisClient: RedisClientType
   ) {}
+
+
+  async updateHashedRefreshToken(userId: string, refreshToken: string) {
+
+    const hashedRefreshToken =  await argon2.hash(refreshToken);
+
+
+    const hashedRefreshTokenKey = `auth:_rt:${userId}`;
+
+    await this.redisClient.set(hashedRefreshTokenKey, hashedRefreshToken);
+  }
+
+  async verifyRefreshToken(userId: string, refreshToken: string) {
+    try {
+      const hashedRefreshTokenKey = `auth:_rt:${userId}`;
+      const hashedRefreshToken = await this.redisClient.get(hashedRefreshTokenKey) ?? '';
+
+
+
+      const isRefreshTokenValid = await argon2.verify(hashedRefreshToken, refreshToken);
+
+
+
+      if (!isRefreshTokenValid) {
+        throw new RpcException({
+          message: 'Invalid refresh token',
+          status: 401,
+        });
+      }
+
+      return {id : userId};
+
+    } catch (err) {
+      throw new RpcException({
+        message: err.message,
+        status: 401
+      });
+    }
+  }
+
+  // ! same as authenticateUser
+  async refreshToken(userId: string) {
+    const [access_token, refresh_token] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          id: userId
+        },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: '15m'
+        }
+      ),
+      this.jwtService.signAsync(
+        {
+          id: userId
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d'
+        }
+      ),
+    ])
+
+
+    await this.updateHashedRefreshToken(userId, refresh_token);
+
+    return {
+      access_token,
+      refresh_token
+    }
+  }
+
   // ? is it really needed ?
+  // * Yes it is needed because it's used in the controller (2025-10-01 22)
   async verifyToken(jwt: string) : Promise<{exp:number}> {
     if (!jwt) {
 
-      console.log("no jwt");
 
       throw new UnauthorizedException();
     }
     try {
 
 
-      console.log("jwt", jwt);
 
 
       const { exp } =await this.jwtService.verifyAsync(jwt);
 
-      console.log("exp", exp);
 
 
       return { exp };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
 
-      console.log("error", error);
 
       throw new UnauthorizedException();
     }
     }
 
-    async getUserFromHeader(jwt: string) {
-      if (!jwt) return
-      try {
-        return this.jwtService.decode(jwt) as UserJwt
-      } catch (error) {
-        throw new BadRequestException()
-      }
+  async getUserFromHeader(jwt: string) {
+    if (!jwt) return
+    try {
+      return this.jwtService.decode(jwt) as UserJwt
+    } catch (error) {
+      throw new BadRequestException()
     }
+  }
+
 
 
   async validateEmailAndPasswordUser(email: string, password: string) {
@@ -96,15 +172,33 @@ export class AuthService {
   }
 
   async authenticateUser(userId : string) {
-    const access_token = this.jwtService.sign({ userId }, { expiresIn: '15m' });
-    const refresh_token = this.jwtService.sign({ userId }, { expiresIn: '7d' });
 
-    const payload = {
-        access_token,
-        refresh_token
+
+    const [access_token, refresh_token] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          userId
+        }
+      ),
+      this.jwtService.signAsync(
+        {
+          userId
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d',
+        },
+      ),
+    ])
+
+
+
+    await this.updateHashedRefreshToken(userId, refresh_token);
+
+    return {
+      access_token,
+      refresh_token
     }
-
-    return payload
   }
 
   async login(user: LoginUserDto) {
@@ -119,8 +213,8 @@ export class AuthService {
       });
     }
 
-
     return this.authenticateUser(existingUser.id);
+
   }
 
   async registerEmailPassword(user: CreateUserDto) {
@@ -148,5 +242,115 @@ export class AuthService {
     const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
 
     return this.authenticateUser(newUser.id);
+  }
+
+
+  // SESSION SECURITY ENHANCEMENT
+
+
+  generateCryptoToken(length = 64) {
+    return crypto.randomBytes(length).toString('hex');
+  }
+
+  async hashToken(token: string) {
+    return  await argon2.hash(token);
+  }
+
+  async compareSessionToken(token: string, hashedToken: string) {
+    console.log("token", token);
+    console.log("hashedToken", hashedToken);
+
+    const res =  await argon2.verify(hashedToken, token);
+
+    console.log("TOkne matched", res);
+
+
+    return res
+  }
+
+
+  // TODO :  refact this to take one sessionToken
+  async setSessionTokenToRedis(userId: string, sessionId: string, sat: string, sct: string): Promise<void> {
+
+    const [hashedSat, hashedSct] = await Promise.all([
+      this.hashToken(sat),
+      this.hashToken(sct),
+    ]);
+
+    const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+    const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+
+    await Promise.all([
+      this.redisClient.set(hashedSatKey, hashedSat, {
+        // exp in one day
+        EX: 60 * 60 * 24
+      }),
+      this.redisClient.set(hashedSctKey, hashedSct,{
+        EX: 60 * 60 * 24 * 7
+      }),
+    ]);
+  }
+
+  async updateSessionTokenToRedis(userId: string, sessionId: string): Promise<{ sat: string; sct: string; }> {
+
+    const sat = this.generateCryptoToken();
+    const sct = this.generateCryptoToken();
+
+    await this.setSessionTokenToRedis(userId, sessionId, sat, sct);
+
+    return { sat, sct };
+  }
+
+  async refreshSessionAccessToken(userId: string, sessionId: string, hashedSatKey: string): Promise<{sat: string}> {
+    const sat = this.generateCryptoToken();
+    await this.redisClient.set(hashedSatKey, sat, {
+      // exp in one day
+      EX: 60 * 60 * 24
+    });
+
+    return  {sat} ;
+  }
+
+  // TODO : refact this to delegates some logiques
+  async validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; sat: string | undefined; }> {
+      const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+      const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+
+      const hashedSat = await this.redisClient.get(hashedSatKey);
+
+      if(hashedSat) {
+
+        console.log("======= sat exits ======", hashedSat);
+
+
+        if (await this.compareSessionToken(sat, hashedSat)) {
+          return {
+            err: null,
+            sat:undefined
+          }
+        }
+      }
+
+      console.log("======= sat  not exits or not valid ======");
+      const hashedSct = await this.redisClient.get(hashedSctKey);
+      if(!hashedSct) {
+        return {
+          err: true,
+          sat: undefined
+        }
+      }
+
+      if (await this.compareSessionToken(sct, hashedSct)) {
+        return {
+          err: null,
+          sat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
+        }
+      }
+      console.log("======= sat  not exits or not valid ======");
+
+      return {
+        err: true,
+        sat: undefined
+      }
   }
 }

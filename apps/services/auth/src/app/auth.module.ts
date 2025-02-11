@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { NestCommonModule } from '@the-nexcom/nest-common';
+import { NestCommonModule, RedisModule } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
 import { ResendModule } from 'nestjs-resend';
 import { JwtModule } from '@nestjs/jwt';
@@ -27,6 +27,8 @@ import { RcpJwtAuthGuard } from './guards/jwt.guard';
       }),
       inject: [ConfigService],
     }),
+    RedisModule,
+    // ConfigModule.forFeature(jwtRefreshConfig)
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, RcpJwtAuthGuard,

@@ -39,7 +39,6 @@ export class UserController {
 
     this.nestCommonService.aknowledgeMessage(context);
 
-    console.log("Create user", user);
     return this.userService.createUser(user);
   }
 
@@ -51,11 +50,9 @@ export class UserController {
   ) {
     this.nestCommonService.aknowledgeMessage(context);
 
-    console.log("user oauth", user);
 
     const ft = filterObjectBySchema(user, createUserProviderSchema)
 
-    console.log("fttt ", ft);
 
 
     this.userService.UpdateUserProviders(createUserProviderSchema.parse(ft))

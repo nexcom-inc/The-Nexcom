@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema } from '@the-nexcom/dto';
 import { ZodValidationPipe } from '@the-nexcom/nest-common';
 import { Request } from 'express';
-import { JwtAuthGuard, SessionGuard } from '../../../guards';
+import {  SessionGuard } from '../../../guards';
 
 interface User {
   id: string
@@ -32,8 +32,6 @@ export class UsersController {
   async createUser (
     @Body() user : CreateUserDto
   ) {
-
-    console.log(user);
 
     // if (user.provider === 'EMAILANDPASSWORD' && !user.password) {
     //   throw new BadRequestException('Password is required')

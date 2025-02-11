@@ -1,8 +1,8 @@
-import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, Session, UseGuards, UsePipes } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
-import { GoogleAuthGuard, LocalAuthGuard } from '../../../guards';
+import { GoogleAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../../guards';
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 
@@ -27,18 +27,32 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(LoginUserSchema))
   async login(
     @Req() req,
-    @Res() res : Response
+    @Res() res : Response,
   ) {
-    const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
+    await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
-    res.cookie('at', response.access_token, { httpOnly: true });
-    res.cookie('rt', response.refresh_token, { httpOnly: true });
+    const userId = req.user.id;
+    const sessionId = req.session.id;
+
+
+    const {sat, sct} = await firstValueFrom(this.authService.send({ cmd: 'update-session-token' }, {
+      userId,
+      sessionId
+    }));
+
+    res.cookie('_sat',sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
+    res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'none' });
 
     res.send({
       message : "authenticated",
-      uid : req.user.id
     })
 
+  }
+
+  @UseGuards(JwtRefreshGuard)
+  @Post('/refresh')
+  refreshToken(@Req() req) {
+    return firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
   }
 
   @UseGuards(GoogleAuthGuard)
@@ -53,10 +67,8 @@ export class AuthController {
     @Req() req,
     @Res() res
   ) {
-    console.log("Google login callback");
     const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
-    console.log("response", response);
 
     res.redirect(`http://localhost:3001/auth/login?accessToken=${response.access_token}&refreshToken=${response.access_token}`);
   }
