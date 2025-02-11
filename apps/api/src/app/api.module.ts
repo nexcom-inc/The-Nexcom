@@ -70,7 +70,7 @@ export class ApiModule implements NestModule {
     const redisStore = new CustomRedisStore({
       client: this.redisClient,
       redisService: this.redisService, // ➜ On passe RedisService à CustomRedisStore
-      prefix: 'auth:session:sid:',
+      prefix: process.env.SESSION_SESSION_ID_KEY_PREFIX
     });
     consumer
       .apply(
@@ -82,7 +82,7 @@ export class ApiModule implements NestModule {
           cookie: {
             sameSite: true,
             httpOnly: true,
-            maxAge: 60 * 60 * 1000,
+            maxAge:7 * 24 * 60 * 60 * 1000,
           },
         }),
           passport.initialize(),

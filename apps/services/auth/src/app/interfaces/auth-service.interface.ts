@@ -84,4 +84,42 @@ export interface AuthServiceInterface {
    * @returns The generated token as a string.
    */
   generateCryptoToken(length?: number): string;
+
+    /**
+   * hashes a token using Argon2.
+   * @param token - The token to hash.
+   * @returns The generated token as a string.
+   */
+  hashToken(token: string): Promise<string>;
+
+  /**
+   * Sets the session token to Redis.
+   * @param userId - The ID of the user.
+   * @param sessionId - The session ID.
+   * @param sat - The session access token.
+   * @param sct - The session continuous token.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  setSessionTokenToRedis(userId: string, sessionId: string, sat : string, sct: string): Promise<void>;
+
+  /**
+   * Updates the session token in Redis.
+   * @param userId - The ID of the user.
+   * @param sessionId - The session ID.
+   * @returns A promise that resolves with the session access token and session continuous token.
+   */
+  updateSessionTokenToRedis(userId: string, sessionId: string): Promise<{
+    sat: string;
+    sct: string;
+  }>;
+
+  /**
+   * Refreshes the session access token.
+   * @param userId - The ID of the user.
+   * @param sessionId - The session ID.
+   * @param sct - The session continuous token.
+   * @returns A promise that resolves with the new session access token.
+   */
+  refreshSessionAccessToken(userId: string, sessionId: string, sct: string): Promise<{ sat: string }>;
+
 }

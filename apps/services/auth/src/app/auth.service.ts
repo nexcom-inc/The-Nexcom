@@ -24,6 +24,7 @@ export class AuthService implements AuthServiceInterface {
     @Inject(REDIS) private readonly redisClient: RedisClientType
   ) {}
 
+
   async updateHashedRefreshToken(userId: string, refreshToken: string) {
 
     const hashedRefreshToken =  await argon2.hash(refreshToken);
@@ -249,5 +250,41 @@ export class AuthService implements AuthServiceInterface {
 
   generateCryptoToken(length = 64) {
     return crypto.randomBytes(length).toString('hex');
+  }
+
+  async hashToken(token: string, salt?: string) {
+    return  await argon2.hash(token);
+  }
+
+
+  async setSessionTokenToRedis(userId: string, sessionId: string, sat: string, sct: string): Promise<void> {
+
+    const [hashedSat, hashedSct] = await Promise.all([
+      this.hashToken(sat),
+      this.hashToken(sct),
+    ]);
+
+    const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+    const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+
+    await Promise.all([
+      this.redisClient.set(hashedSatKey, hashedSat, {
+        // exp in one day
+        EX: 60 * 60 * 24
+      }),
+      this.redisClient.set(hashedSctKey, hashedSct,{
+        EX: 60 * 60 * 24 * 7
+      }),
+    ]);
+  }
+
+  async updateSessionTokenToRedis(userId: string, sessionId: string): Promise<{ sat: string; sct: string; }> {
+
+    const sat = this.generateCryptoToken();
+    const sct = this.generateCryptoToken();
+
+    await this.setSessionTokenToRedis(userId, sessionId, sat, sct);
+
+    return { sat, sct };
   }
 }

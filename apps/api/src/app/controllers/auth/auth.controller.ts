@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, Session, UseGuards, UsePipes } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
@@ -27,22 +27,23 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(LoginUserSchema))
   async login(
     @Req() req,
-    @Res() res : Response
+    @Res() res : Response,
   ) {
     const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
 
 
-    res.cookie('at', response.access_token, { httpOnly: true });
-    res.cookie('rt', response.refresh_token, { httpOnly: true });
 
+    const {sat, sct} = await firstValueFrom(this.authService.send({ cmd: 'update-session-token' }, {
+      userId: req.user.id,
+      sessionId: req.session.id
+    }));
 
+    res.cookie('_sat', sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
+    res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'none' });
 
     res.send({
       message : "authenticated",
-      uid : req.user.id,
-      access_token : response.access_token,
-      refresh_token : response.refresh_token
     })
 
   }

@@ -115,4 +115,13 @@ export class AuthController {
 
     return this.authService.verifyRefreshToken(userId, refreshToken)
   }
+
+  // SESSION SECURITY ENHANCEMENT
+  @MessagePattern({ cmd : 'update-session-token' })
+  async updateSessionToken(
+    @Ctx() context : RmqContext,
+    @Payload() {userId, sessionId} : {userId:string, sessionId:string}){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.updateSessionTokenToRedis(userId, sessionId)
+    }
 }
