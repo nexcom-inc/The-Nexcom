@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, Session, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
 import { GoogleAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../../guards';
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
+import { ApiBody, ApiResponse } from '@nestjs/swagger';
 
 
 @Controller('auth')
@@ -23,8 +24,40 @@ export class AuthController {
 
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
   @UsePipes(new ZodValidationPipe(LoginUserSchema))
+  @ApiBody({
+    type: 'object',
+    schema: {
+      title: 'Login',
+      properties: {
+        email: {
+          type: 'string',
+          format: 'email',
+        },
+        password: {
+          type: 'string',
+          format: 'password',
+        },
+      },
+      required: ['email', 'password'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'login with email and password',
+    schema: {
+      type: 'object',
+      properties: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
+          type: 'string',
+        },
+      },
+    },
+  })
+  @Post('/login')
   async login(
     @Req() req,
     @Res() res : Response,
