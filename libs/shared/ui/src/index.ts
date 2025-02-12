@@ -1,6 +1,5 @@
 // Use this file to export React client components (e.g. those with 'use client' directive) or other non-server utilities
 
-import exp from 'constants'
 
 export * from './components/accordion'
 export * from './components/aspect-ratio'
@@ -35,3 +34,5 @@ export * from './components/switch'
 export * from './components/toggle'
 export * from './components/toggle-group'
 export * from './components/card'
+
+export * from './templates/mailing/welcom'

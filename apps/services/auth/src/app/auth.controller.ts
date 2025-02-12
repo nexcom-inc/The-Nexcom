@@ -1,4 +1,4 @@
-import { Controller, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { NestCommonService } from '@the-nexcom/nest-common';
@@ -87,8 +87,6 @@ export class AuthController {
     @Ctx() context : RmqContext,
     @Payload() userId : string){
 
-
-
     this.nestCommonService.aknowledgeMessage(context)
 
     return this.authService.authenticateUser(userId)
@@ -131,5 +129,13 @@ export class AuthController {
     @Payload() {userId, sessionId, sat, sct} : {userId:string, sessionId:string, sat:string, sct:string}){
       this.nestCommonService.aknowledgeMessage(context)
       return this.authService.validateSessionTokens(userId, sessionId, sat, sct)
+    }
+
+  @MessagePattern({ cmd : 'verify-email' })
+  verifyEmail(
+    @Ctx() context : RmqContext,
+    @Payload() code : string){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.verifyEmail(code)
     }
 }

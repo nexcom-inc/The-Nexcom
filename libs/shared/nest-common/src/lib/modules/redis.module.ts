@@ -8,9 +8,10 @@ import { RedisService } from '../services/redis.service';
     {
       provide: REDIS,
       useFactory: async () => {
+        const logger = new Logger(RedisModule.name);
         const client = createClient({ url: process.env['REDIS_URI'] || 'redis://localhost:6379' });
         await client.connect();
-        Logger.log('✅ Connected to Redis ⛁');
+        logger.log('✅ Connected to Redis ⛁');
         return client;
       },
     },

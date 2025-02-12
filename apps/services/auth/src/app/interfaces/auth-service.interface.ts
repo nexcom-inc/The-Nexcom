@@ -76,7 +76,7 @@ export interface AuthServiceInterface {
    * @param user - The create user data transfer object.
    * @returns A promise that resolves with the new access token and refresh token.
    */
-  registerEmailPassword(user: CreateUserDto): Promise<{ access_token: string; refresh_token: string }>;
+  registerEmailPassword(user: CreateUserDto): Promise<{ message: string }>;
 
   /**
    * Generates a cryptographic token.

@@ -12,7 +12,7 @@ import { CustomExceptionFilter } from './filters';
 import cookieParser from 'cookie-parser';
 
 import * as fs from 'fs'
-
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 
 
 const config = new DocumentBuilder()
@@ -31,7 +31,7 @@ async function bootstrap() {
   app.useGlobalFilters(new CustomExceptionFilter());
 
   app.enableCors({
-    origin: 'http://127.0.0.1:5500',
+    origin: 'http://localhost:3001',
     credentials: true,
   });
 
@@ -41,7 +41,13 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   fs.writeFileSync("./docs/swagger-spec.json", JSON.stringify(document));
-  SwaggerModule.setup(globalPrefix, app, document);
+  const theme = new SwaggerTheme();
+  SwaggerModule.setup(globalPrefix, app, document,{
+    explorer: true,
+    jsonDocumentUrl : "/docs/json",
+    customSiteTitle: "NExcom API Documentation",
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

@@ -21,7 +21,10 @@ export class AuthService implements AuthServiceInterface {
   constructor(
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
-    @Inject(REDIS) private readonly redisClient: RedisClientType
+    // Chose with redis to use
+    @Inject(REDIS) private readonly redisClient: RedisClientType,
+    // private readonly redisSercice: RedisService,
+    @Inject('MAILING_SERVICE') private readonly mailService: ClientProxy
   ) {}
 
 
@@ -166,12 +169,31 @@ export class AuthService implements AuthServiceInterface {
       return {id : existingUser.id};
     }
 
+
     const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
+
+
 
     return { id : newUser.id }
   }
 
   async authenticateUser(userId : string) {
+
+    const user = await firstValueFrom(this.userService.send({ cmd: 'get-user-by-id' }, userId));
+
+    if (!user) {
+      throw new RpcException({
+        message: "User not found",
+        status: 404
+      });
+    }
+
+    if (!user.emailVerified) {
+      throw new RpcException({
+        message: "Email not verified",
+        status: 401
+      });
+    }
 
 
     const [access_token, refresh_token] = await Promise.all([
@@ -240,8 +262,8 @@ export class AuthService implements AuthServiceInterface {
     }
 
     const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
-
-    return this.authenticateUser(newUser.id);
+    this.sendEmailConfirmationCode(user.email, newUser.id);
+    return {message: "Un email de confirmation vous a ete envoye"}
   }
 
 
@@ -352,5 +374,54 @@ export class AuthService implements AuthServiceInterface {
         err: true,
         sat: undefined
       }
+  }
+
+  async sendEmailConfirmationCode(email: string, userId: string) {
+    const code = this.generateCryptoToken(64);
+    const key = `${process.env.CONFIRM_EMAIL_KEY}${code}`
+
+    await this.redisClient.set(key, userId,{
+      // exp in 15 mn
+      EX: 60 * 15
+    });
+
+    console.log("code", code);
+    console.log('email', email);
+
+
+
+    this.mailService.emit('send_confirmation_email', {
+      to: email,
+      code
+    })
+  }
+
+
+  async verifyEmail(code: string) {
+
+    const key = `${process.env.CONFIRM_EMAIL_KEY}${code}`
+    const userId =  await this.redisClient.get(key);
+
+    console.log("userId", userId);
+
+
+    if (!userId) {
+      throw new RpcException({
+        message: "Invalid code",
+        status: 401
+      });
+    }
+
+    this.userService.emit('update_user', {
+      id: userId,
+      data : {emailVerified: true}
+    });
+
+    await this.redisClient.del(key);
+
+    return {
+      userId,
+      message: "Email verified"
+    }
   }
 }
