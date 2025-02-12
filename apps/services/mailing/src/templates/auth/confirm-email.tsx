@@ -1,5 +1,5 @@
 import React from "react"
-import {  Text, Button, Container, Img } from "@react-email/components"
+import {  Text, Button, Container, Img, Link } from "@react-email/components"
 import EmailLayout from "../layout"
 
 export const ConfirmEmailTemplate = ({url} : {url: string}) => {
@@ -50,7 +50,7 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
 
         <Text
           style={{
-            fontSize: "14px",
+            fontSize: "24px",
             color: "#666",
             marginBottom: "24px",
             textAlign: "center",
@@ -59,7 +59,7 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
           Veuillez confirmer votre adresse email pour continuer .
         </Text>
 
-        <Button
+        <Link
           href={url}
           style={{
             backgroundColor: "#000",
@@ -71,10 +71,11 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
             fontWeight: "bold",
             textAlign: "center",
             display: "inline-block",
+            cursor: "pointer"
           }}
         >
           Confirmer mon email
-        </Button>
+        </Link>
 
         <Text
           style={{
@@ -87,6 +88,16 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
           Merci de votre confiance,
           <br />
           La Nexcom Team
+        </Text>
+        <Text
+          style={{
+            fontSize: "6px",
+            color: "#666",
+            marginTop: "42px",
+            textAlign: "center",
+          }}
+        >
+          si vous n'ariver pas à cliquer sur le button vous pouvez copier et coller le lien suivant : {url}.
         </Text>
       </Container>
     </EmailLayout>

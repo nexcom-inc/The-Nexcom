@@ -5,17 +5,22 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
+import { MailingModule } from './app/modules/mailing.module';
+import { ConfigService } from '@nestjs/config';
+import { NestCommonService } from '@the-nexcom/nest-common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
-  );
+  const logger = new Logger(MailingModule.name);
+  const app = await NestFactory.create(MailingModule);
+  const configService = app.get(ConfigService);
+  const nestCommonService = app.get(NestCommonService);
+
+  const queue = configService.get('RABBITMQ_MAILING_QUEUE') ?? 'MAILING_QUEUE';
+
+  app.connectMicroservice(nestCommonService.getRmqOptions(queue));
+  app.startAllMicroservices();
+
+  logger.log(`🚀 Consumer for ${queue} is up and running`);
 }
 
 bootstrap();

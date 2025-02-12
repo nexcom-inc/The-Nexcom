@@ -21,7 +21,8 @@ export class AuthService implements AuthServiceInterface {
   constructor(
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
-    @Inject(REDIS) private readonly redisClient: RedisClientType
+    @Inject(REDIS) private readonly redisClient: RedisClientType,
+    @Inject('MAILING_SERVICE') private readonly mailService: ClientProxy
   ) {}
 
 
@@ -240,8 +241,12 @@ export class AuthService implements AuthServiceInterface {
     }
 
     const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
+    this.mailService.emit('send_confirmation_email', {
+      to: newUser.email,
+      userId: newUser.id
+    })
 
-    return this.authenticateUser(newUser.id);
+    return {message: "Un email de confirmation vous a ete envoye"}
   }
 
 

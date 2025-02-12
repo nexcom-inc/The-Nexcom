@@ -15,6 +15,7 @@ import { RcpJwtAuthGuard } from './guards/jwt.guard';
       envFilePath: './.env',
     }),
     NestCommonModule.registerRmq('USER_SERVICE', process.env.RABBITMQ_USER_QUEUE ?? 'user_queue'),
+    NestCommonModule.registerRmq('MAILING_SERVICE', process.env.RABBITMQ_MAILING_QUEUE ?? 'MAILING_QUEUE'),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
