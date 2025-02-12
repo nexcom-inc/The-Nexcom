@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
 import {  Ctx, EventPattern, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
-import { CreateUserDto, createUserProviderSchema, OauthUserDto, OauthUserWithIdDto } from '@the-nexcom/dto';
+import { CreateUserDto, createUserProviderSchema, OauthUserWithIdDto } from '@the-nexcom/dto';
 import { NestCommonService } from '@the-nexcom/nest-common';
 import { filterObjectBySchema } from '@the-nexcom/utils';
 
@@ -54,8 +54,27 @@ export class UserController {
     const ft = filterObjectBySchema(user, createUserProviderSchema)
 
 
-
+    this.userService.updateUser(user.userId, {
+      emailVerified : true
+    } as CreateUserDto)
     this.userService.UpdateUserProviders(createUserProviderSchema.parse(ft))
   }
 
+
+  @EventPattern('update_user')
+  updateUser(
+    @Payload() payload : {
+      id : string,
+      data : CreateUserDto
+    },
+    @Ctx() context : RmqContext
+  ){
+
+    console.log('payload', payload);
+
+
+    this.nestCommonService.aknowledgeMessage(context);
+
+    return this.userService.updateUser(payload.id, payload.data)
+  }
 }

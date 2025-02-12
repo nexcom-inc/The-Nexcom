@@ -15,13 +15,15 @@ export class MailingController {
 
   @EventPattern('send_confirmation_email')
   async sendConfirmationEmail(
-    @Payload() data: { to: string; userId: string },
+    @Payload() data: { to: string; code: string },
     @Ctx() context : RmqContext,
   ) {
+    console.log('data', data);
+
     this.nestCommonService.aknowledgeMessage(context);
     try {
-      const { to, userId } = data;
-      await this.mailService.sendConfirmationEmail(to, userId);
+      const { to, code } = data;
+      await this.mailService.sendConfirmationEmail(to, code);
     } catch (error) {
       this.logger.error(error);
     }

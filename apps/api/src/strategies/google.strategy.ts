@@ -29,10 +29,13 @@ export class  GoogleStrategy extends PassportStrategy(Strategy){
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
 
 
+    console.log('profile', profile);
+
 
       const googleUser : OauthUserDto = {
         email : profile.emails[0].value,
         firstName : profile.name.givenName,
+        emailVerified : profile.emails[0].verified,
         lastName : profile.name.familyName,
         fullName : profile.displayName,
         accountProviderId : profile.id,

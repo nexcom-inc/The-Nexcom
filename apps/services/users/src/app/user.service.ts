@@ -1,7 +1,7 @@
 import {  Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Providers } from '@prisma/client';
-import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema } from '@the-nexcom/dto';
+import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema, createUserSchema } from '@the-nexcom/dto';
 import { PrismaService } from '@the-nexcom/nest-common';
 import { filterObjectBySchema } from '@the-nexcom/utils';
 import { hash } from 'bcryptjs';
@@ -73,7 +73,8 @@ export class UserService {
       const newUser =  await this.primsa.user.create({
         data: {
           email: user.email,
-          password: user.password
+          password: user.password,
+          emailVerified : user.emailVerified
         },
         select: {
           id: true,
@@ -133,6 +134,31 @@ export class UserService {
         }
     } catch (error) {
         Logger.error('une erreur s\'est produite :', error?.message);
+    }
+  }
+
+  async updateUser(id: string, data: CreateUserDto) {
+
+
+    console.log("id ======>", id);
+
+    console.log("user ======>", data);
+
+    try {
+      return await this.primsa.user.update({
+        where: {
+          id,
+        },
+        data: {
+          ...filterObjectBySchema(data, createUserSchema)
+        }
+      });
+    } catch (error) {
+        Logger.log('une erreur s\'est produite :', error);
+        throw new RpcException({
+          message: error?.message,
+          status: 500
+        })
     }
   }
 }

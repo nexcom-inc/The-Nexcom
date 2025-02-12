@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const OauthUserSchema = z.object({
   email: z.string().email(),
   provider: z.enum(['GOOGLE', 'FACEBOOK', 'GITHUB']),
+  emailVerified : z.boolean().default(false).optional(),
   accountProviderId: z.string().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),

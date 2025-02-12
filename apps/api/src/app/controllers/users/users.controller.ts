@@ -27,20 +27,6 @@ export class UsersController {
     return this.userService.send({ cmd: 'get-user-by-id' }, (req.user as User)?.id)
   }
 
-  @Post('/users')
-  @UsePipes(new ZodValidationPipe(createUserSchema))
-  async createUser (
-    @Body() user : CreateUserDto
-  ) {
-
-    // if (user.provider === 'EMAILANDPASSWORD' && !user.password) {
-    //   throw new BadRequestException('Password is required')
-    // }
-
-    const res = this.userService.send({ cmd: 'create-user' }, user)
-    return res
-  }
-
   @Get('session')
   async getSession (
     @Session() session

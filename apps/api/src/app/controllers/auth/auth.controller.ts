@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Inject, Post, Query, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
@@ -6,6 +6,7 @@ import { GoogleAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../../guard
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { QueryRequired } from '../../../decorators';
 
 
 @Controller('auth')
@@ -62,7 +63,7 @@ export class AuthController {
     @Req() req,
     @Res() res : Response,
   ) {
-    await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
+    // await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
     const userId = req.user.id;
     const sessionId = req.session.id;
@@ -100,9 +101,34 @@ export class AuthController {
     @Req() req,
     @Res() res
   ) {
-    const response = await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
+    const userId = req.user.id;
+    const sessionId = req.session.id;
 
 
-    res.redirect(`http://localhost:3001/auth/login?accessToken=${response.access_token}&refreshToken=${response.access_token}`);
+    const {sat, sct} = await firstValueFrom(this.authService.send({ cmd: 'update-session-token' }, {
+      userId,
+      sessionId
+    }));
+
+    res.cookie('_sat',sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:"strict" });
+    res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'strict' });
+
+    console.log(res.getHeaders());
+
+
+    res.redirect(`http://localhost:3001`);
+  }
+
+  @Get('/verify-email')
+  verifyEmail(
+    @QueryRequired('code') code : string
+  ){
+
+    console.log("code", code);
+
+    if (!code) {
+      return new BadRequestException('code is required')
+    }
+    return this.authService.send({ cmd: 'verify-email' }, code);
   }
 }
