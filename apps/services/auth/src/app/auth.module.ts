@@ -4,7 +4,6 @@ import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NestCommonModule, RedisModule } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
-import { ResendModule } from 'nestjs-resend';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RcpJwtAuthGuard } from './guards/jwt.guard';
@@ -16,9 +15,6 @@ import { RcpJwtAuthGuard } from './guards/jwt.guard';
       envFilePath: './.env',
     }),
     NestCommonModule.registerRmq('USER_SERVICE', process.env.RABBITMQ_USER_QUEUE ?? 'user_queue'),
-    ResendModule.forRoot({
-      apiKey: process.env.RESEND_API_KEY ?? '',
-    }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

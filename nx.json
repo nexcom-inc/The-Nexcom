@@ -44,7 +44,8 @@
         "apps/api-e2e/**/*",
         "apps/services/auth-e2e/**/*",
         "apps/services/accounts-e2e/**/*",
-        "apps/services/users-e2e/**/*"
+        "apps/services/users-e2e/**/*",
+        "apps/services/mailing-e2e/**/*"
       ]
     },
     {
