@@ -1,28 +1,47 @@
-import React from 'react';
-import { Html, Head, Body, Container } from '@react-email/components';
+import React from "react"
+import { Html, Head, Body, Section, Text } from "@react-email/components"
 
 const EmailLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Html>
       <Head />
-      <Body className="bg-gray-100 p-6">
-        <Container className="max-w-xl mx-auto bg-white p-6 shadow-md rounded-lg">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-indigo-600">Your Company</h1>
-          </div>
-
-          {/* Email Content */}
+      <Body           style={{ padding: "24px" }}
+      >
+        <Section
+          style={{
+            margin: "0 auto",
+          }}
+        >
           {children}
 
-          {/* Footer */}
-          <div className="text-center mt-10 text-gray-500 text-sm">
-            <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
-          </div>
-        </Container>
+          <Section
+            style={{ textAlign: "center", marginTop: "40px", paddingTop: "32px" }}
+          >
+            <Text
+              style={{
+                fontSize: "10px",
+                color: "#666666",
+                margin: "0",
+              }}
+            >
+              © The Nexcom {new Date().getFullYear()}
+            </Text>
+            <Text
+              style={{
+                fontSize: "10px",
+                color: "#666666",
+                margin: "0px 0 0",
+              }}
+            >
+              Mariste, Dakar, Senegal
+            </Text>
+          </Section>
+        </Section>
       </Body>
     </Html>
-  );
-};
+  )
+}
 
-export default EmailLayout;
+export default EmailLayout
+
+// style={{ backgroundColor: "#f6f9fc", padding: "24px" }}

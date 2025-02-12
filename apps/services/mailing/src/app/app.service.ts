@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ResendService } from 'nestjs-resend';
 import { render } from '@react-email/components';
-import WelcomeEmail from '../templates/welcom';
+import  ConfirmEmailTemplate  from '../templates/auth/confirm-email';
 import * as React from 'react';
 
 
@@ -15,12 +15,13 @@ export class AppService {
   }
 
   async sendMail() {
-    const html = await render(React.createElement(WelcomeEmail));
+    const html = await render(React.createElement(ConfirmEmailTemplate, { url: "https://google.com" }));
+
 
     await this.resend.send({
       from: 'nexcom@mouhamedlamotte.tech',
       to: 'mouhamedlamotte.dev@gmail.com',
-      subject: 'Weclcom to Nexcom',
+      subject: 'Welcom to Nexcom',
       html: html
     });
     return { message: 'Mail sent' };
