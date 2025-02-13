@@ -70,7 +70,6 @@ export class UserController {
     @Ctx() context : RmqContext
   ){
 
-    console.log('payload', payload);
 
 
     this.nestCommonService.aknowledgeMessage(context);

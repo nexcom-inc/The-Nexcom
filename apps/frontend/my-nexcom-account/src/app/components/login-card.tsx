@@ -3,10 +3,34 @@
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Button, Separator, Input, Label } from "@the-nexcom/ui"
 import { Github, Mail } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+import Axiosinstance from "../../lib/axios"
 
 export default function LoginCard() {
-
   const router = useRouter()
+
+  // TEMPORARY
+  const [user, setUser] = useState({
+    email: '',
+    password : ''
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSubmit = () => {
+    const respose = Axiosinstance.post('/api/auth/login', {
+      ...user
+    }).then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
@@ -20,15 +44,19 @@ export default function LoginCard() {
           <CardContent className="p-0 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" />
+              <Input id="email" type="email" placeholder="m@example.com" name="email"
+                onChange={handleChange}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
+              <Input id="password" type="password" placeholder="password" name="password"
+                onChange={handleChange}
+              />
             </div>
           </CardContent>
           <CardFooter className="p-0">
-            <Button className="w-full">Login</Button>
+            <Button className="w-full" onClick={handleSubmit}>Login</Button>
           </CardFooter>
         </div>
 

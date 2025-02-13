@@ -140,9 +140,7 @@ export class UserService {
   async updateUser(id: string, data: CreateUserDto) {
 
 
-    console.log("id ======>", id);
 
-    console.log("user ======>", data);
 
     try {
       return await this.primsa.user.update({

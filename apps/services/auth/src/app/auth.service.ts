@@ -279,12 +279,9 @@ export class AuthService implements AuthServiceInterface {
   }
 
   async compareSessionToken(token: string, hashedToken: string) {
-    console.log("token", token);
-    console.log("hashedToken", hashedToken);
 
     const res =  await argon2.verify(hashedToken, token);
 
-    console.log("TOkne matched", res);
 
 
     return res
@@ -342,7 +339,6 @@ export class AuthService implements AuthServiceInterface {
 
       if(hashedSat) {
 
-        console.log("======= sat exits ======", hashedSat);
 
 
         if (await this.compareSessionToken(sat, hashedSat)) {
@@ -353,7 +349,6 @@ export class AuthService implements AuthServiceInterface {
         }
       }
 
-      console.log("======= sat  not exits or not valid ======");
       const hashedSct = await this.redisClient.get(hashedSctKey);
       if(!hashedSct) {
         return {
@@ -368,7 +363,6 @@ export class AuthService implements AuthServiceInterface {
           sat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
         }
       }
-      console.log("======= sat  not exits or not valid ======");
 
       return {
         err: true,
@@ -385,8 +379,6 @@ export class AuthService implements AuthServiceInterface {
       EX: 60 * 15
     });
 
-    console.log("code", code);
-    console.log('email', email);
 
 
 
@@ -402,7 +394,6 @@ export class AuthService implements AuthServiceInterface {
     const key = `${process.env.CONFIRM_EMAIL_KEY}${code}`
     const userId =  await this.redisClient.get(key);
 
-    console.log("userId", userId);
 
 
     if (!userId) {

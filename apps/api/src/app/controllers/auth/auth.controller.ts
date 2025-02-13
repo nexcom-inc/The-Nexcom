@@ -63,7 +63,7 @@ export class AuthController {
     @Req() req,
     @Res() res : Response,
   ) {
-    // await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
+    await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, req.user.id));
 
     const userId = req.user.id;
     const sessionId = req.session.id;
@@ -113,10 +113,9 @@ export class AuthController {
     res.cookie('_sat',sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:"strict" });
     res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'strict' });
 
-    console.log(res.getHeaders());
 
 
-    res.redirect(`http://localhost:3001`);
+    res.redirect(`http://localhost:3001/auth/login?redirect=true&serviceName=Accounts`);
   }
 
   @Get('/verify-email')
@@ -124,7 +123,6 @@ export class AuthController {
     @QueryRequired('code') code : string
   ){
 
-    console.log("code", code);
 
     if (!code) {
       return new BadRequestException('code is required')
