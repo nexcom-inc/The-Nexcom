@@ -19,10 +19,14 @@ export class SessionGuard implements CanActivate {
 
 
     const {_sat, _sct} = request.cookies;
+
+    console.log(_sat, _sct);
+
+
     const sessionId = request.session.id;
     const userId = request.user.id;
 
-    if (!_sat || !_sct || !sessionId) return false;
+    if (!_sct || !sessionId) return false;
     return this.authService.send({ cmd: 'validate-session-tokens' }, {
       userId,
       sessionId,
@@ -30,6 +34,12 @@ export class SessionGuard implements CanActivate {
       sct: _sct
     }).pipe(
       switchMap(({err, sat}) => {
+
+        console.log("err", err);
+
+        console.log("sat", sat);
+
+
 
 
 
@@ -39,13 +49,13 @@ export class SessionGuard implements CanActivate {
         }
 
         if (sat) {
-
-          request.cookies('_sat', sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
+          // set the new sat
         }
 
         return of(true);
       }),
       catchError((e) => {
+        console.log("une erreur", e);
 
         throw new UnauthorizedException();
       })

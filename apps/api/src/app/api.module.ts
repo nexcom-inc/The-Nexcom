@@ -2,20 +2,20 @@ import { Inject, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CustomRedisStore, NestCommonModule, REDIS, RedisModule, RedisService } from '@the-nexcom/nest-common';
 import { ErrorInterceptor } from '../interceptors';
-import { AuthController } from './controllers/auth/auth.controller';
+import { AuthController } from './controllers/auth.controller';
 import { GoogleStrategy } from '../strategies/google.strategy';
 import { RedisClientType } from 'redis';
 import session from 'express-session';
 import { SessionSerializer } from '../serializers/session.serializers';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from '../strategies/local.stategy';
-import { UsersController } from './controllers/users/users.controller';
-import { JwtAuthGuard, JwtRefreshGuard, SessionGuard } from '../guards';
+import { UsersController } from './controllers/users.controller';
+import { SessionGuard } from '../guards';
 
 import passport from 'passport';
-import googleOauthConfig from './config/google/google-oauth.config';
+import googleOauthConfig from '../config/google/google-oauth.config';
 import { RefreshJwtBearerStrategy } from '../strategies/refresh-bearer.startegy';
-import { RabbitMQController } from './controllers/rmq/rmq.controller';
+import { RabbitMQController } from './controllers/rmq.controller';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({

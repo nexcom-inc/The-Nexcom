@@ -2,11 +2,11 @@ import { BadRequestException, Body, Controller, Get, HttpCode, Inject, Post, Que
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
-import { GoogleAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../../guards';
+import { GoogleAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../guards';
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
-import { QueryRequired } from '../../../decorators';
+import { QueryRequired } from '../../decorators';
 
 
 @Controller('auth')
@@ -74,8 +74,8 @@ export class AuthController {
       sessionId
     }));
 
-    res.cookie('_sat',sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
-    res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'none' });
+    res.cookie('_sat',sat, { httpOnly: true, expires: new Date(Date.now() + 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'strict' });
+    res.cookie('_sct', sct, { httpOnly: true , expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 7 * 24 * 60 * 60 * 1000, sameSite:'strict' });
 
     res.send({
       message : "authenticated",

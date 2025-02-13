@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDto, createUserSchema } from '@the-nexcom/dto';
 import { ZodValidationPipe } from '@the-nexcom/nest-common';
 import { Request } from 'express';
-import {  SessionGuard } from '../../../guards';
+import {  SessionGuard } from '../../guards';
 
 interface User {
   id: string

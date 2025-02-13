@@ -337,7 +337,11 @@ export class AuthService implements AuthServiceInterface {
 
       const hashedSat = await this.redisClient.get(hashedSatKey);
 
-      if(hashedSat) {
+      console.log("SAT", hashedSat, hashedSatKey, sat);
+
+
+      if(hashedSat && sat) {
+        console.log("session access token is valid");
 
 
 
@@ -348,9 +352,14 @@ export class AuthService implements AuthServiceInterface {
           }
         }
       }
+      console.log("session access token is not valid");
+      console.log("verifying session continuous token");
+
 
       const hashedSct = await this.redisClient.get(hashedSctKey);
-      if(!hashedSct) {
+      if(!hashedSct || !sct) {
+        console.log("session continuous token is not valid");
+
         return {
           err: true,
           sat: undefined
@@ -358,11 +367,17 @@ export class AuthService implements AuthServiceInterface {
       }
 
       if (await this.compareSessionToken(sct, hashedSct)) {
+        console.log("session continuous token is valid");
+        console.log("refreshing session access token");
+
         return {
           err: null,
           sat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
         }
       }
+
+      console.log("none of the tokens is valid");
+
 
       return {
         err: true,
