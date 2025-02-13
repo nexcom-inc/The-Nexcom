@@ -40,7 +40,7 @@ export interface AuthServiceInterface {
    * @param jwt - The JWT token.
    * @returns A promise that resolves with the user information or undefined if the token is invalid.
    */
-  getUserFromHeader(jwt: string): Promise<UserJwt | undefined>;
+  decodeToken(jwt: string): Promise<UserJwt | undefined>;
 
   /**
    * Validates a user's email and password.
@@ -130,7 +130,7 @@ export interface AuthServiceInterface {
    * @param sct - The session continuous token.
    * @returns return a promise that resolves with the session access token and session continuous token
    */
-  validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; sat: string | undefined; }>
+  validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; newSat: string | undefined; }>
 
 
   compareSessionToken(token: string, hashedToken: string): Promise<boolean>;

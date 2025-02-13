@@ -1,9 +1,7 @@
-import { Body, Controller, Get, Inject, Post, Req, Session, UseGuards, UsePipes } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { CreateUserDto, createUserSchema } from '@the-nexcom/dto';
-import { ZodValidationPipe } from '@the-nexcom/nest-common';
+import { Controller, Get, Req, Session, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import {  SessionGuard } from '../../guards';
+import { UsersService } from '../services/users.service';
 
 interface User {
   id: string
@@ -14,17 +12,16 @@ interface User {
 export class UsersController {
 
   constructor(
-    @Inject('USER_SERVICE') private readonly userService: ClientProxy
+    private readonly userService: UsersService
   ) {}
 
   @UseGuards(SessionGuard)
   @Get('/me')
-  async getUser (
+  async GetMe (
     @Req() req : Request,
-    @Session() session
   ) {
 
-    return this.userService.send({ cmd: 'get-user-by-id' }, (req.user as User)?.id)
+    return this.userService.getMe((req.user as User)?.id)
   }
 
   @Get('session')

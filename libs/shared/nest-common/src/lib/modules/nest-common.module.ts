@@ -2,7 +2,6 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { NestCommonService } from '../services/nest-common.service';
-import rmqConfig from '../../config/rmq.config';
 
 @Module({
   imports: [
@@ -10,7 +9,6 @@ import rmqConfig from '../../config/rmq.config';
       isGlobal: true,
       envFilePath: '.env',
       expandVariables : true,
-      load : [rmqConfig],
     })
   ],
   providers: [NestCommonService],

@@ -13,6 +13,7 @@ import cookieParser from 'cookie-parser';
 
 import * as fs from 'fs'
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
+import { ErrorInterceptor } from './interceptors';
 
 
 const config = new DocumentBuilder()
@@ -27,7 +28,7 @@ async function bootstrap() {
   const app = await NestFactory.create(ApiModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-  // app.useGlobalInterceptors(new ErrorInterceptor());
+  app.useGlobalInterceptors(new ErrorInterceptor());
   app.useGlobalFilters(new CustomExceptionFilter());
 
   app.enableCors({
