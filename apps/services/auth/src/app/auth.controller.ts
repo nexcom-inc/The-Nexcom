@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, UseGuards } from '@nestjs/common';
+  import {  Controller, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { NestCommonService } from '@the-nexcom/nest-common';
@@ -34,7 +34,7 @@ export class AuthController {
   ){
     this.nestCommonService.aknowledgeMessage(context)
 
-    return this.authService.getUserFromHeader(payload.jwt)
+    return this.authService.decodeToken(payload.jwt)
   }
 
   // ! to be removed
@@ -138,4 +138,23 @@ export class AuthController {
       this.nestCommonService.aknowledgeMessage(context)
       return this.authService.verifyEmail(code)
     }
+
+  @MessagePattern({ cmd : 'get-jwt-tokens' })
+  getJwt(
+    @Ctx() context : RmqContext,
+    @Payload() userId : string){
+      console.log("user id pattern",userId);
+
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.authenticateUser(userId)
+    }
+
+  @MessagePattern({ cmd : 'refresh-token' })
+  refreshToken(
+    @Ctx() context : RmqContext,
+    @Payload() userId : string){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.refreshToken(userId)
+    }
+
 }

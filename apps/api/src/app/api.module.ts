@@ -1,22 +1,14 @@
 import { Inject, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { CustomRedisStore, NestCommonModule, REDIS, RedisModule, RedisService } from '@the-nexcom/nest-common';
-import { ErrorInterceptor } from '../interceptors';
-import { AuthController } from './controllers/auth/auth.controller';
-import { GoogleStrategy } from '../strategies/google.strategy';
+import { CustomRedisStore, REDIS, RedisModule, RedisService } from '@the-nexcom/nest-common';
 import { RedisClientType } from 'redis';
 import session from 'express-session';
-import { SessionSerializer } from '../serializers/session.serializers';
-import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from '../strategies/local.stategy';
-import { UsersController } from './controllers/users/users.controller';
-import { JwtAuthGuard, JwtRefreshGuard, SessionGuard } from '../guards';
+// import { UsersController } from './controllers/users.controller';
 
 import passport from 'passport';
-import googleOauthConfig from './config/google/google-oauth.config';
-import { RefreshJwtBearerStrategy } from '../strategies/refresh-bearer.startegy';
-import { RabbitMQController } from './controllers/rmq/rmq.controller';
-import { HttpModule } from '@nestjs/axios';
+import googleOauthConfig from '../config/google/google-oauth.config';
+import { AuthModule } from './modules/auth.module';
+import { UsersModule } from './modules/users.module';
 
 @Module({
   imports: [
@@ -28,41 +20,13 @@ import { HttpModule } from '@nestjs/axios';
       load: [googleOauthConfig],
     }),
 
-    // MICROSERVICES
-    NestCommonModule.registerRmq('AUTH_SERVICE', process.env.RABBITMQ_AUTH_QUEUE ?? 'auth_queue'),
-    NestCommonModule.registerRmq('ACCOUNT_SERVICE', process.env.RABBITMQ_ACCOUNT_QUEUE ?? 'account_queue'),
-    NestCommonModule.registerRmq('USER_SERVICE', process.env.RABBITMQ_USER_QUEUE ?? 'user_queue'),
+    // APP MODULE
+    AuthModule,
+    UsersModule,
 
-
-    // REDIS
+    // OTHER MODULE
     RedisModule,
-    // RedisCacheModule,
-
-    // PASSPORT
-    PassportModule.register({session: true}),
-
-    // MODULES
-    HttpModule
   ],
-  controllers: [ AuthController, UsersController, RabbitMQController],
-  providers: [
-    // SERVICES
-
-    // STRATEGIES
-    GoogleStrategy,
-    LocalStrategy,
-    RefreshJwtBearerStrategy,
-
-    // GUARDS
-    SessionGuard,
-    // JwtAuthGuard,
-    // JwtRefreshGuard,
-
-    // SERIALIZERS
-    SessionSerializer,
-
-    // INTERCEPTORS
-    {provide : 'APP_INTERCEPTOR', useClass: ErrorInterceptor}],
 })
 export class ApiModule implements NestModule {
   constructor(

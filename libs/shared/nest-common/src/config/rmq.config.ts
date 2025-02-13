@@ -1,7 +1,6 @@
-import { registerAs } from "@nestjs/config";
 import { ClientOptions, Transport } from "@nestjs/microservices";
 
-export default registerAs ('rmq', () : ClientOptions => ({
+export default ((queue : string) : ClientOptions => ({
 
   transport: Transport.RMQ,
   options: {

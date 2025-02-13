@@ -1,54 +1,40 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { catchError, Observable, of, switchMap } from 'rxjs';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthService } from '../../app/services/auth.service';
+import { Response } from 'express';
 
 @Injectable()
 export class SessionGuard implements CanActivate {
+  constructor(private readonly authService: AuthService) {}
 
-  constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
-  ) {}
-
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    const response : Response = context.switchToHttp().getResponse(); // Needed for setting new cookies
 
     if (!request.user) return false;
 
-
-
-    const {_sat, _sct} = request.cookies;
-    const sessionId = request.session.id;
+    const { _sat, _sct } = request.cookies;
+    const sessionId = request.session?.id;
     const userId = request.user.id;
 
-    if (!_sat || !_sct || !sessionId) return false;
-    return this.authService.send({ cmd: 'validate-session-tokens' }, {
-      userId,
-      sessionId,
-      sat: _sat,
-      sct: _sct
-    }).pipe(
-      switchMap(({err, sat}) => {
+    if (!_sct || !sessionId) return false;
 
+    try {
+      const { err, newSat } = await this.authService.validateSessionTokens(userId, sessionId, _sat, _sct);
 
+      if (err) {
+        request.session.destroy();
+        throw new BadRequestException();
+      }
 
+      // If newSat is provided, update the session token in the response cookies
+      if (newSat) {
+        response.cookie('_sat', newSat, { httpOnly: true, secure: true });
+      }
 
-        if (err) {
-          throw new UnauthorizedException();
-        }
-
-        if (sat) {
-
-          request.cookies('_sat', sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
-        }
-
-        return of(true);
-      }),
-      catchError((e) => {
-
-        throw new UnauthorizedException();
-      })
-    )
+      return true;
+    } catch (error) {
+      request.session.destroy();
+      throw new BadRequestException();
+    }
   }
 }

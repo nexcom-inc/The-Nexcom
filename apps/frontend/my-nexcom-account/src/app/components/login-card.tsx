@@ -22,14 +22,13 @@ export default function LoginCard() {
     })
   }
 
-  const handleSubmit = () => {
-    const respose = Axiosinstance.post('/api/auth/login', {
+  const handleSubmit = async () => {
+    const respose = await Axiosinstance.post('/api/auth/login', {
       ...user
-    }).then(res => {
-      console.log(res)
-    }).catch(err => {
-      console.log(err)
     })
+    if (respose.status === 200) {
+      router.replace('/')
+    }
   }
 
   return (

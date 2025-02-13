@@ -39,6 +39,12 @@ export class AuthService implements AuthServiceInterface {
   }
 
   async verifyRefreshToken(userId: string, refreshToken: string) {
+
+    console.log("userId",userId);
+    console.log("refreshToken",refreshToken);
+
+
+
     try {
       const hashedRefreshTokenKey = `auth:_rt:${userId}`;
       const hashedRefreshToken = await this.redisClient.get(hashedRefreshTokenKey) ?? '';
@@ -71,7 +77,7 @@ export class AuthService implements AuthServiceInterface {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(
         {
-          id: userId
+         userId
         },
         {
           secret: process.env.JWT_SECRET,
@@ -80,7 +86,7 @@ export class AuthService implements AuthServiceInterface {
       ),
       this.jwtService.signAsync(
         {
-          id: userId
+         userId
         },
         {
           secret: process.env.JWT_REFRESH_SECRET,
@@ -124,7 +130,7 @@ export class AuthService implements AuthServiceInterface {
     }
     }
 
-  async getUserFromHeader(jwt: string) {
+  async  decodeToken(jwt: string) {
     if (!jwt) return
     try {
       return this.jwtService.decode(jwt) as UserJwt
@@ -279,12 +285,14 @@ export class AuthService implements AuthServiceInterface {
   }
 
   async compareSessionToken(token: string, hashedToken: string) {
+    try {
+      const res =  await argon2.verify(hashedToken, token);
+      return res
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return false
+    }
 
-    const res =  await argon2.verify(hashedToken, token);
-
-
-
-    return res
   }
 
 
@@ -331,42 +339,57 @@ export class AuthService implements AuthServiceInterface {
   }
 
   // TODO : refact this to delegates some logiques
-  async validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; sat: string | undefined; }> {
+  async validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; newSat: string | undefined; }> {
       const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
       const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
 
       const hashedSat = await this.redisClient.get(hashedSatKey);
 
-      if(hashedSat) {
+      console.log("SAT", hashedSat, hashedSatKey, sat);
+
+
+      if(hashedSat && sat) {
+        console.log("session access token is valid");
 
 
 
         if (await this.compareSessionToken(sat, hashedSat)) {
           return {
             err: null,
-            sat:undefined
+            newSat:undefined
           }
         }
       }
+      console.log("session access token is not valid");
+      console.log("verifying session continuous token");
+
 
       const hashedSct = await this.redisClient.get(hashedSctKey);
-      if(!hashedSct) {
+      if(!hashedSct || !sct) {
+        console.log("session continuous token is not valid");
+
         return {
           err: true,
-          sat: undefined
+          newSat: undefined
         }
       }
 
       if (await this.compareSessionToken(sct, hashedSct)) {
+        console.log("session continuous token is valid");
+        console.log("refreshing session access token");
+
         return {
           err: null,
-          sat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
+          newSat: (await this.refreshSessionAccessToken(userId, sessionId, hashedSatKey)).sat
         }
       }
 
+      console.log("none of the tokens is valid");
+
+
       return {
         err: true,
-        sat: undefined
+        newSat: undefined
       }
   }
 
