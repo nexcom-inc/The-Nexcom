@@ -18,7 +18,6 @@ export class MailingController {
     @Payload() data: { to: string; code: string },
     @Ctx() context : RmqContext,
   ) {
-    console.log('data', data);
 
     this.nestCommonService.aknowledgeMessage(context);
     try {

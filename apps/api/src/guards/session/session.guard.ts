@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { catchError, firstValueFrom, Observable, of, switchMap } from 'rxjs';
+import { catchError, Observable, of, switchMap } from 'rxjs';
 
 @Injectable()
 export class SessionGuard implements CanActivate {
@@ -16,6 +16,8 @@ export class SessionGuard implements CanActivate {
 
     if (!request.user) return false;
 
+
+
     const {_sat, _sct} = request.cookies;
     const sessionId = request.session.id;
     const userId = request.user.id;
@@ -29,8 +31,7 @@ export class SessionGuard implements CanActivate {
     }).pipe(
       switchMap(({err, sat}) => {
 
-        console.log('err', err);
-        console.log('sat', sat);
+
 
 
         if (err) {
@@ -38,7 +39,6 @@ export class SessionGuard implements CanActivate {
         }
 
         if (sat) {
-          console.log('new sat', sat);
 
           request.cookies('_sat', sat, { httpOnly: true, expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), maxAge: 24 * 60 * 60 * 1000, sameSite:'none' });
         }
@@ -47,7 +47,6 @@ export class SessionGuard implements CanActivate {
       }),
       catchError((e) => {
 
-        console.log(e);
         throw new UnauthorizedException();
       })
     )

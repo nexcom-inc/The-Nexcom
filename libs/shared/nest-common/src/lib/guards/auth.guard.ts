@@ -35,7 +35,6 @@ export class AuthGuard  implements CanActivate {
     //   return this.auth.send({cmd : 'verify-token'}, {jwt}).pipe(
     //     switchMap(({exp}) => {
 
-    //       console.log("exp", exp);
 
     //       if (!exp) return of(false);
 
@@ -52,7 +51,7 @@ export class AuthGuard  implements CanActivate {
     //     })
     // )
 
-    // * i'll do the verification right here
+    // * doing the verification right here
     try {
       // Vérification asynchrone du token
       const payload = await this.jwtService.verifyAsync(jwt);
@@ -71,7 +70,10 @@ export class AuthGuard  implements CanActivate {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // En cas d'erreur (token invalide, expiré, etc.), on rejette la requête
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({
+        message: 'Unauthorized',
+        status: 401
+      });
     }
   }
 }
