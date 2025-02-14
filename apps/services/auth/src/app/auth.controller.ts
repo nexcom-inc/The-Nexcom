@@ -157,6 +157,8 @@ export class AuthController {
       return this.authService.refreshToken(userId)
     }
 
+
+
   //SUBSCRIBE TO EVENTS
   @EventPattern('send_verification_email')
   sendVerificationEmail(
@@ -178,5 +180,14 @@ export class AuthController {
     this.nestCommonService.aknowledgeMessage(context)
     console.log("\n sending it to clear user session storage in auth microservice service");
     this.authService.clearUserSessionStorage(userId, sessionId)
+    }
+
+    //
+  @MessagePattern({ cmd : 'get-user-active-sessions' })
+  async getUserActiveSessions(
+    @Ctx() context : RmqContext,
+    @Payload() userId : string){
+      this.nestCommonService.aknowledgeMessage(context)
+      return this.authService.getUserActiveSessions(userId)
     }
 }

@@ -444,6 +444,7 @@ export class AuthService implements AuthServiceInterface {
 
     const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
     const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+    const userSessionTrackkey = `${process.env.SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`
 
     console.log("\n hashedSatKey",hashedSatKey);
     console.log("\n hashedSctKey",hashedSctKey);
@@ -452,6 +453,19 @@ export class AuthService implements AuthServiceInterface {
     await Promise.all([
       this.redisClient.del(hashedSatKey),
       this.redisClient.del(hashedSctKey),
+      // this.redisClient.lRem(userSessionTrackkey, 0, JSON.stringify({ sessionId }))
     ]);
   }
+
+  async getUserActiveSessions(userId: string) {
+    const pattern = `${process.env.SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`;
+    const userSessions = await this.redisClient.lRange(pattern, 0, -1);
+
+    console.log("\n userSessions",userSessions);
+
+    const parsedSessions = userSessions.map(session => JSON.parse(session));
+
+    return parsedSessions
+  }
+
 }

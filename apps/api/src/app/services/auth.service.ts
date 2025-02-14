@@ -81,4 +81,9 @@ export class AuthService {
       sessionId
     });
   }
+
+  async getUserActiveSessions(userId : string) {
+    return await firstValueFrom(this.authService.send({ cmd: 'get-user-active-sessions' }, userId));
+  }
+
 }

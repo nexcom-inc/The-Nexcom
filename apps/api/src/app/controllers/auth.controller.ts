@@ -132,4 +132,11 @@ export class AuthController {
       res.send({ message: 'Logout successful' });
     });
   }
+
+  // ? May be this endpoint and logique belongs to users service ?
+  @UseGuards(SessionGuard)
+  @Get('/sessions')
+  getActiveSessions(@Req() req) {
+    return this.authService.getUserActiveSessions(req.user.id);
+  }
 }
