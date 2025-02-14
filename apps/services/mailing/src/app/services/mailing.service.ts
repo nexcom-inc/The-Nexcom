@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ResendService } from 'nestjs-resend';
-import { render } from '@react-email/components';
 import  ConfirmEmailTemplate  from '../../templates/auth/confirm-email';
-import * as React from 'react';
+import { DEFAULT_MAILING_ACTION_URL, DEFAULT_MAILING_FROM } from '@the-nexcom/constants';
+import { CreateHtmlFromComponent } from '../../utils/create-html';
 
 
 @Injectable()
@@ -11,19 +11,13 @@ export class MailingService {
   constructor(
     private readonly resend: ResendService,
   ) {}
-
-
   async sendConfirmationEmail(to: string, code: string) {
-
-
-      const verifyUrl = `${process.env.CLIENT_URL}/auth/verify-email?code=${code}`;
-
-      const html = await render(React.createElement(ConfirmEmailTemplate, { url: verifyUrl }));
-
+      const verifyUrl = `${DEFAULT_MAILING_ACTION_URL}/auth/verify-email?code=${code}`;
+      const html = await CreateHtmlFromComponent(ConfirmEmailTemplate, { url: verifyUrl });
       await this.resend.send({
-        from: 'nexcom@mouhamedlamotte.tech',
+        from: DEFAULT_MAILING_FROM,
         to,
-        subject: 'Verifier votre email',
+        subject: 'Confirmation de votre adresse email',
         html,
       });
   }

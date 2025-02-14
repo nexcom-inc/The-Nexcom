@@ -19,6 +19,7 @@ export class UserController {
     @Ctx() context : RmqContext
   ) {
     this.nestCommonService.aknowledgeMessage(context);
+    if (!email) return;
     return this.userService.getUserByEmail(email);
   }
 
@@ -28,6 +29,7 @@ export class UserController {
     @Ctx() context : RmqContext
   ) {
     this.nestCommonService.aknowledgeMessage(context);
+    if (!id) return;
     return this.userService.getUserById(id);
   }
 
@@ -49,15 +51,16 @@ export class UserController {
     @Ctx() context : RmqContext
   ) {
     this.nestCommonService.aknowledgeMessage(context);
+    if (!user) return;
 
-
-    const ft = filterObjectBySchema(user, createUserProviderSchema)
+    // ! this function is not safe
+    const providerDetails = filterObjectBySchema(user, createUserProviderSchema)
 
 
     this.userService.updateUser(user.userId, {
       emailVerified : true
     } as CreateUserDto)
-    this.userService.UpdateUserProviders(createUserProviderSchema.parse(ft))
+    this.userService.UpdateUserProviders(createUserProviderSchema.parse(providerDetails))
   }
 
 
@@ -69,11 +72,7 @@ export class UserController {
     },
     @Ctx() context : RmqContext
   ){
-
-
-
     this.nestCommonService.aknowledgeMessage(context);
-
-    return this.userService.updateUser(payload.id, payload.data)
+    this.userService.updateUser(payload.id, payload.data)
   }
 }

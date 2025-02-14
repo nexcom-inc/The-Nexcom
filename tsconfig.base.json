@@ -16,6 +16,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@the-nexcom/constants": ["libs/shared/constants/src/index.ts"],
       "@the-nexcom/dto": ["libs/shared/dto/src/index.ts"],
       "@the-nexcom/interfaces": ["libs/shared/interfaces/src/index.ts"],
       "@the-nexcom/nest-common": ["libs/shared/nest-common/src/index.ts"],

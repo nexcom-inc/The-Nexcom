@@ -4,11 +4,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
+import { AUTH_SERVICE } from '@the-nexcom/nest-common';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
+    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
   ) {
     super(
       {

@@ -19,6 +19,10 @@ export class MailingController {
     @Ctx() context : RmqContext,
   ) {
 
+    if (!data) {
+      return;
+    }
+
     this.nestCommonService.aknowledgeMessage(context);
     try {
       const { to, code } = data;

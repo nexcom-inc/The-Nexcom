@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { NestCommonModule, RedisModule } from '@the-nexcom/nest-common';
+import { MAILING_SERVICE, NestCommonModule, RABBITMQ_MAILING_QUEUE, RABBITMQ_USER_QUEUE, RedisModule, USER_SERVICE } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -14,8 +14,8 @@ import { RcpJwtAuthGuard } from './guards/jwt.guard';
       isGlobal: true,
       envFilePath: './.env',
     }),
-    NestCommonModule.registerRmq('USER_SERVICE', process.env.RABBITMQ_USER_QUEUE ?? 'user_queue'),
-    NestCommonModule.registerRmq('MAILING_SERVICE', process.env.RABBITMQ_MAILING_QUEUE ?? 'MAILING_QUEUE'),
+    NestCommonModule.registerRmq(USER_SERVICE, RABBITMQ_USER_QUEUE),
+    NestCommonModule.registerRmq(MAILING_SERVICE, RABBITMQ_MAILING_QUEUE),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

@@ -1,13 +1,14 @@
 import {  ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { AuthGuard } from '@nestjs/passport';
+import { AUTH_SERVICE } from '@the-nexcom/nest-common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
 
     constructor(
-      @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
+      @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
     ){
       super();
     }

@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 // import { ClientProxy } from "@nestjs/microservices";
 // import { catchError, of, switchMap } from "rxjs";
 import { JwtService } from "@nestjs/jwt";
@@ -8,7 +8,7 @@ export class AuthGuard  implements CanActivate {
 
   constructor(
     // ! i'll do the verification right here
-    // @Inject('AUTH_SERVICE') private readonly auth: ClientProxy
+    // @Inject(AUTH_SERVICE) private readonly auth: ClientProxy
     private readonly jwtService: JwtService,
   ) {}
 
@@ -27,6 +27,7 @@ export class AuthGuard  implements CanActivate {
 
       if (parts.length !== 2 || parts[0] !== 'Bearer' || !parts[1])  return false;
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, jwt] = parts;
 
 

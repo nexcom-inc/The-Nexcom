@@ -1,4 +1,4 @@
-export const REDIS = Symbol('REDIS');
+export const REDIS ='REDIS';
 
 // PREFIX
 export const AUTH_KEY_PREFIX='auth:'

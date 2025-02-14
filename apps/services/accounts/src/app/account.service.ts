@@ -4,6 +4,7 @@ import { PrismaService } from '@the-nexcom/nest-common';
 
 @Injectable()
 export class AccountService {
+  private logger = new Logger(AccountService.name);
 
   constructor(
     private readonly prisma : PrismaService
@@ -15,16 +16,22 @@ export class AccountService {
         data: account
       })
     } catch (error) {
-      Logger.warn('une erreur s\'est produite :', error?.message);
+      this.logger.warn('une erreur s\'est produite :', error?.message);
+      return
     }
   }
 
   async updateAccount(account: UpdateAccountDto) {
-    return await this.prisma.account.update({
-      where: {
-        userId: account.userId
-      },
-      data: account
-    })
+    try {
+      return await this.prisma.account.update({
+        where: {
+          userId: account.userId
+        },
+        data: account
+      })
+    } catch (error) {
+      this.logger.warn('une erreur s\'est produite :', error?.message);
+      return
+    }
   }
 }

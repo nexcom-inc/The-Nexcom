@@ -1,6 +1,7 @@
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { CreateUserDto } from "@the-nexcom/dto";
+import { AUTH_SERVICE } from "@the-nexcom/nest-common";
 import { firstValueFrom } from "rxjs";
 
 /**
@@ -9,7 +10,7 @@ import { firstValueFrom } from "rxjs";
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
+    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
   ) {}
 
   registerEmailAndPassword(user : CreateUserDto) {

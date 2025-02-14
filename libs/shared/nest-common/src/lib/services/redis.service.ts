@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RedisClientType } from 'redis';
-import { REDIS } from '../../constants/redis.constants';
+import { REDIS, SESSION_TRACK_USER_SESSION_KEY_PREFIX } from '../../constants/redis.constants';
 
 @Injectable()
 export class RedisService {
@@ -25,7 +25,7 @@ export class RedisService {
 
   // ➜ STOCKER UNE SESSION UTILISATEUR
   async storeUserSession(userId: string, sessionId: string, sessionData: any, ttl: number) {
-    const sessionKey = `${process.env['SESSION_TRACK_USER_SESSION_KEY_PREFIX']}${userId}`;
+    const sessionKey = `${SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`;
 
     const data = {
       sessionId,
@@ -38,7 +38,7 @@ export class RedisService {
 
   // ➜ SUPPRIMER UNE SESSION UTILISATEUR
   async removeUserSession(userId: string, sessionId: string) {
-    const sessionKey = `${process.env['SESSION_TRACK_USER_SESSION_KEY_PREFIX']}${userId}`;
+    const sessionKey = `${SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`;
     await this.del(sessionKey);
 
   }
@@ -51,7 +51,7 @@ export class RedisService {
 
     const sessions = await Promise.all(
       JSON.parse(sessionIds).map(async (sessionId: any) => {
-        const sessionData = await this.get(`${process.env['SESSION_TRACK_USER_SESSION_KEY_PREFIX']}${userId}`);
+        const sessionData = await this.get(`${SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`);
         return sessionData ? JSON.parse(sessionData) : null;
       })
     );
