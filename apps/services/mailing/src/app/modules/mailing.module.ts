@@ -3,7 +3,8 @@ import { MailingController } from '../controllers/mailing.controller';
 import { MailingService } from '../services/mailing.service';
 import { ResendModule } from 'nestjs-resend';
 import { ConfigModule } from '@nestjs/config';
-import { NestCommonModule, RedisModule } from '@the-nexcom/nest-common';
+import { NestCommonModule } from '@the-nexcom/nest-common';
+import { RESEND_API_KEY } from '@the-nexcom/constants';
 
 
 @Module({
@@ -13,9 +14,8 @@ import { NestCommonModule, RedisModule } from '@the-nexcom/nest-common';
       envFilePath: './.env',
     }),
     ResendModule.forRoot({
-      apiKey: process.env.RESEND_API_KEY ?? '',
+      apiKey: RESEND_API_KEY as string
     }),
-    RedisModule,
     NestCommonModule
   ],
   controllers: [MailingController],

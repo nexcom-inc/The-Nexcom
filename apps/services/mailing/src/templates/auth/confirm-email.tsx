@@ -1,5 +1,5 @@
 import React from "react"
-import {  Text, Button, Container, Img, Link } from "@react-email/components"
+import {  Text, Container, Link } from "@react-email/components"
 import EmailLayout from "../layout"
 
 export const ConfirmEmailTemplate = ({url} : {url: string}) => {
@@ -29,7 +29,6 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
               marginBottom: "16px",
               textAlign: "center",
               textTransform: "uppercase",
-              letterSpacing: "2px",
             }}
           >
             The Nexcom
@@ -38,7 +37,7 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
 
         <Text
           style={{
-            fontSize: "24px",
+            fontSize: "20px",
             fontWeight: "600",
             color: "#000",
             marginBottom: "16px",
@@ -50,7 +49,7 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
 
         <Text
           style={{
-            fontSize: "24px",
+            fontSize: "16px",
             color: "#666",
             marginBottom: "24px",
             textAlign: "center",
@@ -91,7 +90,7 @@ export const ConfirmEmailTemplate = ({url} : {url: string}) => {
         </Text>
         <Text
           style={{
-            fontSize: "6px",
+            fontSize: "14px",
             color: "#666",
             marginTop: "42px",
             textAlign: "center",
