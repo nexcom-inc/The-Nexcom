@@ -8,6 +8,7 @@ import { hash } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
+  private logger = new Logger(UserService.name)
 
   constructor(
     // NestCommonService
@@ -31,7 +32,7 @@ export class UserService {
         }
       });
     } catch (error) {
-        Logger.log('une erreur s\'est produite :', error?.message);
+        this.logger.log('une erreur s\'est produite :', error?.message);
         throw new RpcException({
           message: error?.message,
           status: 500
@@ -48,24 +49,21 @@ export class UserService {
         },
       });
     } catch (error) {
-        Logger.log('une erreur s\'est produite :', error?.message);
+        this.logger.log('une erreur s\'est produite :', error?.message);
     }
   }
 
   async createUser(user: CreateUserDto) {
-
-    // check if user already exists
-    const exisTingUser = await this.getUserByEmail(user.email)
-
-    if (exisTingUser) {
-      throw new RpcException({
-        message: "User with this email already exists",
-        status: 400
-      })
-    }
-
     try {
+      // check if user already exists
+      const exisTingUser = await this.getUserByEmail(user.email)
 
+      if (exisTingUser) {
+        throw new RpcException({
+          message: "User with this email already exists",
+          status: 400
+        })
+      }
       if (user.password){
         user.password = await hash(user.password, 10)
       }
@@ -96,7 +94,7 @@ export class UserService {
       return newUser
 
     } catch (error) {
-        Logger.log('une erreur s\'est produite :', error?.message);
+        this.logger.log('une erreur s\'est produite :', error?.message);
         throw new RpcException({
           message: error?.message ?? "Something went wrong",
           status: 500
@@ -111,7 +109,7 @@ export class UserService {
         data: userProvider
       });
     } catch (error) {
-        Logger.log('une erreur s\'est produite :', error?.message);
+        this.logger.log('une erreur s\'est produite :', error?.message);
     }
   }
 
@@ -133,15 +131,11 @@ export class UserService {
             await this.createUserProvider(userProviders)
         }
     } catch (error) {
-        Logger.error('une erreur s\'est produite :', error?.message);
+        this.logger.error('une erreur s\'est produite :', error?.message);
     }
   }
 
   async updateUser(id: string, data: CreateUserDto) {
-
-
-
-
     try {
       return await this.primsa.user.update({
         where: {
@@ -152,7 +146,7 @@ export class UserService {
         }
       });
     } catch (error) {
-        Logger.log('une erreur s\'est produite :', error);
+        this.logger.log('une erreur s\'est produite :', error);
         throw new RpcException({
           message: error?.message,
           status: 500
