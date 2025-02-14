@@ -36,7 +36,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx auth:generate-types
+      - run: pnpm exec nx run auth:generate-types
 
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: pnpm exec nx-cloud record -- echo Hello World
