@@ -16,7 +16,7 @@ export class UsersController {
   ) {}
 
   @UseGuards(SessionGuard)
-  @Get('/me')
+  @Get('/@me')
   async GetMe (
     @Req() req : Request,
   ) {
@@ -24,7 +24,7 @@ export class UsersController {
     return this.userService.getMe((req.user as User)?.id)
   }
 
-  @Get('session')
+  @Get('/@me/session')
   async getSession (
     @Session() session
   ) {

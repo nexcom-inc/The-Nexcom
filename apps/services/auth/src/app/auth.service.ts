@@ -40,8 +40,6 @@ export class AuthService implements AuthServiceInterface {
 
   async verifyRefreshToken(userId: string, refreshToken: string) {
 
-    console.log("userId",userId);
-    console.log("refreshToken",refreshToken);
 
 
 
@@ -267,8 +265,8 @@ export class AuthService implements AuthServiceInterface {
       });
     }
 
-    const newUser = await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
-    this.sendEmailConfirmationCode(user.email, newUser.id);
+    await firstValueFrom(this.userService.send({ cmd: 'create-user' }, user));
+    this.sendEmailConfirmationCode(user.email);
     return {message: "Un email de confirmation vous a ete envoye"}
   }
 
@@ -345,11 +343,9 @@ export class AuthService implements AuthServiceInterface {
 
       const hashedSat = await this.redisClient.get(hashedSatKey);
 
-      console.log("SAT", hashedSat, hashedSatKey, sat);
 
 
       if(hashedSat && sat) {
-        console.log("session access token is valid");
 
 
 
@@ -360,13 +356,10 @@ export class AuthService implements AuthServiceInterface {
           }
         }
       }
-      console.log("session access token is not valid");
-      console.log("verifying session continuous token");
 
 
       const hashedSct = await this.redisClient.get(hashedSctKey);
       if(!hashedSct || !sct) {
-        console.log("session continuous token is not valid");
 
         return {
           err: true,
@@ -375,8 +368,6 @@ export class AuthService implements AuthServiceInterface {
       }
 
       if (await this.compareSessionToken(sct, hashedSct)) {
-        console.log("session continuous token is valid");
-        console.log("refreshing session access token");
 
         return {
           err: null,
@@ -384,7 +375,6 @@ export class AuthService implements AuthServiceInterface {
         }
       }
 
-      console.log("none of the tokens is valid");
 
 
       return {
@@ -393,11 +383,19 @@ export class AuthService implements AuthServiceInterface {
       }
   }
 
-  async sendEmailConfirmationCode(email: string, userId: string) {
+  async sendEmailConfirmationCode(email: string) {
+
+    const user = await firstValueFrom(
+      this.userService.send({ cmd: 'get-user-by-email' }, email),
+    );
+
+
+    if (!user) return
+
     const code = this.generateCryptoToken(64);
     const key = `${process.env.CONFIRM_EMAIL_KEY}${code}`
 
-    await this.redisClient.set(key, userId,{
+    await this.redisClient.set(key, user.id,{
       // exp in 15 mn
       EX: 60 * 15
     });
@@ -437,5 +435,23 @@ export class AuthService implements AuthServiceInterface {
       userId,
       message: "Email verified"
     }
+  }
+
+  async clearUserSessionStorage(userId: string, sessionId: string) {
+
+    console.log("\n received clear user session storage in  auth microservice service", userId, sessionId);
+
+
+    const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+    const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+
+    console.log("\n hashedSatKey",hashedSatKey);
+    console.log("\n hashedSctKey",hashedSctKey);
+
+
+    await Promise.all([
+      this.redisClient.del(hashedSatKey),
+      this.redisClient.del(hashedSctKey),
+    ]);
   }
 }

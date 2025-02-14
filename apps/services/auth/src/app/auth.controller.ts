@@ -1,6 +1,6 @@
   import {  Controller, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Ctx, EventPattern, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { NestCommonService } from '@the-nexcom/nest-common';
 import { PrismaService } from '../lib';
 import { RcpJwtAuthGuard } from './guards/jwt.guard';
@@ -157,4 +157,26 @@ export class AuthController {
       return this.authService.refreshToken(userId)
     }
 
+  //SUBSCRIBE TO EVENTS
+  @EventPattern('send_verification_email')
+  sendVerificationEmail(
+    @Ctx() context : RmqContext,
+    @Payload() email : string){
+      console.log("sendVerificationEmail",email);
+
+      this.nestCommonService.aknowledgeMessage(context)
+      this.authService.sendEmailConfirmationCode(email)
+    }
+
+  @EventPattern('clear_user_session_storage')
+  async clearUserSessionStorage(
+    @Ctx() context : RmqContext,
+    @Payload() {userId, sessionId} : {userId:string, sessionId:string}){
+
+    console.log("\n received clear user session storage in  auth microservice controller", userId, sessionId);
+    console.log("\n acknowledging it");
+    this.nestCommonService.aknowledgeMessage(context)
+    console.log("\n sending it to clear user session storage in auth microservice service");
+    this.authService.clearUserSessionStorage(userId, sessionId)
+    }
 }
