@@ -9,7 +9,7 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 import { JwtService } from '@nestjs/jwt';
 import {  CreateUserDto, LoginUserDto, OauthUserDto } from '@the-nexcom/dto';
-import { REDIS, UserJwt } from '@the-nexcom/nest-common';
+import { CONFIRM_EMAIL_KEY, MAILING_SERVICE, REDIS, SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX, SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX, SESSION_TRACK_USER_SESSION_KEY_PREFIX, USER_SERVICE, UserJwt } from '@the-nexcom/nest-common';
 import * as argon2 from 'argon2';
 import { RedisClientType } from 'redis';
 
@@ -19,12 +19,12 @@ import { AuthServiceInterface } from './interfaces/auth-service.interface';
 @Injectable()
 export class AuthService implements AuthServiceInterface {
   constructor(
-    @Inject('USER_SERVICE') private readonly userService: ClientProxy,
+    @Inject(USER_SERVICE) private readonly userService: ClientProxy,
     private readonly jwtService: JwtService,
     // Chose with redis to use
     @Inject(REDIS) private readonly redisClient: RedisClientType,
     // private readonly redisSercice: RedisService,
-    @Inject('MAILING_SERVICE') private readonly mailService: ClientProxy
+    @Inject(MAILING_SERVICE) private readonly mailService: ClientProxy
   ) {}
 
 
@@ -78,7 +78,6 @@ export class AuthService implements AuthServiceInterface {
          userId
         },
         {
-          secret: process.env.JWT_SECRET,
           expiresIn: '15m'
         }
       ),
@@ -302,8 +301,8 @@ export class AuthService implements AuthServiceInterface {
       this.hashToken(sct),
     ]);
 
-    const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
-    const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+    const hashedSatKey = `${SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+    const hashedSctKey = `${SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
 
     await Promise.all([
       this.redisClient.set(hashedSatKey, hashedSat, {
@@ -338,8 +337,8 @@ export class AuthService implements AuthServiceInterface {
 
   // TODO : refact this to delegates some logiques
   async validateSessionTokens(userId: string, sessionId: string, sat: string, sct: string): Promise<{ err: unknown; newSat: string | undefined; }> {
-      const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
-      const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+      const hashedSatKey = `${SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+      const hashedSctKey = `${SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
 
       const hashedSat = await this.redisClient.get(hashedSatKey);
 
@@ -393,7 +392,7 @@ export class AuthService implements AuthServiceInterface {
     if (!user) return
 
     const code = this.generateCryptoToken(64);
-    const key = `${process.env.CONFIRM_EMAIL_KEY}${code}`
+    const key = `${CONFIRM_EMAIL_KEY}${code}`
 
     await this.redisClient.set(key, user.id,{
       // exp in 15 mn
@@ -412,7 +411,7 @@ export class AuthService implements AuthServiceInterface {
 
   async verifyEmail(code: string) {
 
-    const key = `${process.env.CONFIRM_EMAIL_KEY}${code}`
+    const key = `${CONFIRM_EMAIL_KEY}${code}`
     const userId =  await this.redisClient.get(key);
 
 
@@ -442,9 +441,9 @@ export class AuthService implements AuthServiceInterface {
     console.log("\n received clear user session storage in  auth microservice service", userId, sessionId);
 
 
-    const hashedSatKey = `${process.env.SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
-    const hashedSctKey = `${process.env.SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
-    const userSessionTrackkey = `${process.env.SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`
+    const hashedSatKey = `${SESSION_SESSION_TOKEN_ACCESS_KEY_PREFIX}${userId}:${sessionId}`;
+    const hashedSctKey = `${SESSION_SESSION_CONTINUOUS_TOKEN_KEY_PREFIX}${userId}:${sessionId}`;
+    const userSessionTrackkey = `${SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`
 
     console.log("\n hashedSatKey",hashedSatKey);
     console.log("\n hashedSctKey",hashedSctKey);
@@ -458,7 +457,7 @@ export class AuthService implements AuthServiceInterface {
   }
 
   async getUserActiveSessions(userId: string) {
-    const pattern = `${process.env.SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`;
+    const pattern = `${SESSION_TRACK_USER_SESSION_KEY_PREFIX}${userId}`;
     const userSessions = await this.redisClient.lRange(pattern, 0, -1);
 
     console.log("\n userSessions",userSessions);

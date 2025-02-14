@@ -1,11 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
+import { USER_SERVICE } from "@the-nexcom/nest-common";
 
 @Injectable()
 export class UsersService {
 
   constructor(
-    @Inject('USER_SERVICE') private readonly userService: ClientProxy
+    @Inject(USER_SERVICE) private readonly userService: ClientProxy
   ) {
 
   }

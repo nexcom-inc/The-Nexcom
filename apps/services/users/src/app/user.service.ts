@@ -2,7 +2,7 @@ import {  Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Providers } from '@prisma/client';
 import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema, createUserSchema } from '@the-nexcom/dto';
-import { PrismaService } from '@the-nexcom/nest-common';
+import { ACCOUNT_SERVICE, PrismaService } from '@the-nexcom/nest-common';
 import { filterObjectBySchema } from '@the-nexcom/utils';
 import { hash } from 'bcryptjs';
 
@@ -14,7 +14,7 @@ export class UserService {
     private readonly primsa : PrismaService,
 
     // Rmq services
-    @Inject('ACCOUNT_SERVICE') private readonly accountService: ClientProxy
+    @Inject(ACCOUNT_SERVICE) private readonly accountService: ClientProxy
   ) {}
 
 

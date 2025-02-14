@@ -1,12 +1,13 @@
 import { Inject } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { PassportStrategy } from "@nestjs/passport";
+import { AUTH_SERVICE } from "@the-nexcom/nest-common";
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { firstValueFrom } from "rxjs";
 
 export class RefreshJwtBearerStrategy extends PassportStrategy(Strategy, 'refresh-jwt-bearer')  {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
+    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

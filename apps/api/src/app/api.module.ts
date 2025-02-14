@@ -1,6 +1,6 @@
 import { Inject, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { CustomRedisStore, REDIS, RedisModule, RedisService } from '@the-nexcom/nest-common';
+import { CustomRedisStore, REDIS, RedisModule, RedisService, SESSION_SESSION_ID_KEY_PREFIX } from '@the-nexcom/nest-common';
 import { RedisClientType } from 'redis';
 import session from 'express-session';
 // import { UsersController } from './controllers/users.controller';
@@ -39,7 +39,7 @@ export class ApiModule implements NestModule {
     const redisStore = new CustomRedisStore({
       client: this.redisClient,
       redisService: this.redisService, // ➜ On passe RedisService à CustomRedisStore
-      prefix: process.env.SESSION_SESSION_ID_KEY_PREFIX
+      prefix:SESSION_SESSION_ID_KEY_PREFIX
     });
     consumer
       .apply(

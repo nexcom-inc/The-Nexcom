@@ -5,18 +5,12 @@
 
 import { NestFactory } from '@nestjs/core';
 import { UserModule } from './app/user.module';
-import { ConfigService } from '@nestjs/config';
-import { NestCommonService } from '@the-nexcom/nest-common';
+import { NestCommonService, RABBITMQ_USER_QUEUE } from '@the-nexcom/nest-common';
 
 async function bootstrap() {
   const app = await NestFactory.create(UserModule);
-  const configService = app.get(ConfigService);
   const nestCommonService = app.get(NestCommonService);
-
-  const queue = configService.get('RABBITMQ_USER_QUEUE') ?? 'user_queue';
-
-  app.connectMicroservice(nestCommonService.getRmqOptions(queue));
-
+  app.connectMicroservice(nestCommonService.getRmqOptions(RABBITMQ_USER_QUEUE));
   app.startAllMicroservices();
 }
 

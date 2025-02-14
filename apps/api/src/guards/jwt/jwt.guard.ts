@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 // import { JwtService } from "@nestjs/jwt";
 import { ClientProxy } from "@nestjs/microservices";
+import { AUTH_SERVICE } from "@the-nexcom/nest-common";
 import { catchError, of, switchMap } from "rxjs";
 
 @Injectable()
@@ -8,7 +9,7 @@ export class JwtAuthGuard  implements CanActivate {
 
   constructor(
     //  this might be a bad idea (this comment is no longer valid because JwtModule is used and configured in AuthModule)
-    @Inject('AUTH_SERVICE') private readonly auth: ClientProxy,
+    @Inject(AUTH_SERVICE) private readonly auth: ClientProxy,
     // ! do not use this here because it's module is not configured in Appmodule
     // private readonly jwtService: JwtService,
   ) {}

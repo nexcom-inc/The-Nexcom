@@ -6,6 +6,7 @@ import googleOauthConfig from '../config/google/google-oauth.config';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { OauthUserDto } from '@the-nexcom/dto';
+import { AUTH_SERVICE } from '@the-nexcom/nest-common';
 
 
 
@@ -15,7 +16,7 @@ export class  GoogleStrategy extends PassportStrategy(Strategy){
   constructor(
     @Inject(googleOauthConfig.KEY)
     private googleOauthConfiguration: ConfigType<typeof googleOauthConfig>,
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
+    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
   )
   {
     super({

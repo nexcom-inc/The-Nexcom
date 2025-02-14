@@ -2,13 +2,14 @@ import { AuthGuard } from '@nestjs/passport';
 import {  ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { AUTH_SERVICE } from '@the-nexcom/nest-common';
 
 
 @Injectable()
 export class GoogleAuthGuard extends AuthGuard('google') {
 
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy
+    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
   ) {
     super();
   }
