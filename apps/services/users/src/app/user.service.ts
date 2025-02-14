@@ -1,5 +1,6 @@
 import {  Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { Providers } from '@prisma/client';
 import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema, createUserSchema } from '@the-nexcom/dto';
 import { PrismaService } from '@the-nexcom/nest-common';
 import { filterObjectBySchema } from '@the-nexcom/utils';
@@ -121,7 +122,7 @@ export class UserService {
             where: {
                 userId_provider: {
                     userId: userProviders.userId,
-                    provider: userProviders.provider as 'EMAILANDPASSWORD'
+                    provider: userProviders.provider as Providers
                 }
             }
         })
