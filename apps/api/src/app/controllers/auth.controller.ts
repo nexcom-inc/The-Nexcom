@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Inject, Param, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
-import { GoogleAuthGuard, JwtAuthGuard, JwtRefreshGuard, LocalAuthGuard } from '../../guards';
-import {  Response } from 'express';
+import { GoogleAuthGuard, JwtAuthGuard, JwtRefreshGuard, LocalAuthGuard, SessionGuard } from '../../guards';
+import {  Request, Response } from 'express';
 import { QueryRequired } from '../../decorators';
 import { AuthService } from '../services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -92,9 +92,16 @@ export class AuthController {
     res.redirect(`http://localhost:3001/auth/login?redirect=true&serviceName=Accounts`);
   }
 
-  @Get('/verify-email')
+  @Get('/email/send-verification/:email')
+  sendVerificationEmail(
+    @Param('email') email : string
+  ){
+    return this.authService.sendVerificationEmail(email)
+  }
+
+  @Get('/email/verify/:code')
   verifyEmail(
-    @QueryRequired('code') code : string
+  @Param('code')  code : string,
   ){
 
 
@@ -102,5 +109,34 @@ export class AuthController {
       return new BadRequestException('code is required')
     }
     return this.authService.verifyEmail(code);
+  }
+
+  @UseGuards(SessionGuard)
+  @Get('/logout')
+  logout(@Req() req , @Res() res : Response) {
+
+    const sessionId = req.session.id;
+    const userId = req.user.id;
+
+    if (userId && sessionId) {
+      console.log("session and user id found =====>",userId, sessionId);
+      console.log("\n sending it to clear user session storage in api auth service");
+
+      this.authService.clearUserSessionStorage(userId, sessionId);
+    }
+
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.clearCookie('_sat');
+      res.clearCookie('_sct');
+      res.send({ message: 'Logout successful' });
+    });
+  }
+
+  // ? May be this endpoint and logique belongs to users service ?
+  @UseGuards(SessionGuard)
+  @Get('/sessions')
+  getActiveSessions(@Req() req) {
+    return this.authService.getUserActiveSessions(req.user.id);
   }
 }

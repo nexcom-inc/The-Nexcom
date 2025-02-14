@@ -25,38 +25,22 @@ export class RedisService {
 
   // ➜ STOCKER UNE SESSION UTILISATEUR
   async storeUserSession(userId: string, sessionId: string, sessionData: any, ttl: number) {
-    const sessionKey = `session:user:${userId}:${sessionId}`;
-    const userSessionsKey = `sessions:user:${userId}`;
+    const sessionKey = `${process.env['SESSION_TRACK_USER_SESSION_KEY_PREFIX']}${userId}`;
 
-
-
-
-    await this.set(sessionKey, JSON.stringify(sessionData), ttl);
-
-    const existingSessions = await this.get(userSessionsKey);
-    const sessions = existingSessions ? JSON.parse(existingSessions) : [];
-    if (!sessions.includes(sessionId)) {
-      sessions.push(sessionId);
-      await this.set(userSessionsKey, JSON.stringify(sessions), ttl);
+    const data = {
+      sessionId,
+      ...sessionData,
     }
+
+
+    await this.redisClient.lPush(sessionKey, JSON.stringify(data));
   }
 
   // ➜ SUPPRIMER UNE SESSION UTILISATEUR
   async removeUserSession(userId: string, sessionId: string) {
-    const sessionKey = `session:user:${userId}:${sessionId}`;
-    const userSessionsKey = `sessions:user:${userId}`;
-
+    const sessionKey = `${process.env['SESSION_TRACK_USER_SESSION_KEY_PREFIX']}${userId}`;
     await this.del(sessionKey);
 
-    const existingSessions = await this.get(userSessionsKey);
-    if (existingSessions) {
-      const sessions = JSON.parse(existingSessions).filter((id: string)  => id !== sessionId);
-      if (sessions.length > 0) {
-        await this.set(userSessionsKey, JSON.stringify(sessions));
-      } else {
-        await this.del(userSessionsKey);
-      }
-    }
   }
 
   // ➜ RÉCUPÉRER TOUTES LES SESSIONS D'UN USER
@@ -67,7 +51,7 @@ export class RedisService {
 
     const sessions = await Promise.all(
       JSON.parse(sessionIds).map(async (sessionId: any) => {
-        const sessionData = await this.get(`session:user:${userId}:${sessionId}`);
+        const sessionData = await this.get(`${process.env['SESSION_TRACK_USER_SESSION_KEY_PREFIX']}${userId}`);
         return sessionData ? JSON.parse(sessionData) : null;
       })
     );

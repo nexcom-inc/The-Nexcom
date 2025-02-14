@@ -62,4 +62,28 @@ export class AuthService {
 
     return await firstValueFrom(this.authService.send({ cmd: 'get-jwt-tokens' }, userId));
   }
+
+  async sendVerificationEmail(email : string) {
+     await firstValueFrom(this.authService.emit('send_verification_email', email))
+     console.log("send_verification_email event emitted", email);
+
+     return { message : "Si votre compte existe, un email de confirmation vous a été envoyé" }
+  }
+
+  async clearUserSessionStorage(userId : string, sessionId : string) {
+
+    console.log("\n received clear user session storage in api auth service", userId, sessionId);
+    console.log("\n emitting it to clear user session storage in auth microservice");
+
+
+    return this.authService.emit('clear_user_session_storage', {
+      userId,
+      sessionId
+    });
+  }
+
+  async getUserActiveSessions(userId : string) {
+    return await firstValueFrom(this.authService.send({ cmd: 'get-user-active-sessions' }, userId));
+  }
+
 }

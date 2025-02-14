@@ -22,7 +22,7 @@ export class SessionGuard implements CanActivate {
       const { err, newSat } = await this.authService.validateSessionTokens(userId, sessionId, _sat, _sct);
 
       if (err) {
-        request.session.destroy();
+        // request.session.destroy();
         throw new BadRequestException();
       }
 
