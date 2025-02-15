@@ -7,15 +7,22 @@ import { PrismaService } from '../lib';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RcpJwtAuthGuard } from './guards/jwt.guard';
+import { JwtAuthService } from './services/jwt-auth.service';
+import { JwtAuthController } from './controllers/jwt-auth.controller';
+import { UserAuthService } from './services/user-auth.service';
+import { UserAuthController } from './controllers/user-auth.controller';
 
 @Module({
   imports: [
+
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: './.env',
     }),
+
     NestCommonModule.registerRmq(USER_SERVICE, RABBITMQ_USER_QUEUE),
     NestCommonModule.registerRmq(MAILING_SERVICE, RABBITMQ_MAILING_QUEUE),
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -24,11 +31,14 @@ import { RcpJwtAuthGuard } from './guards/jwt.guard';
       }),
       inject: [ConfigService],
     }),
+
+
     RedisModule,
+
     // ConfigModule.forFeature(jwtRefreshConfig)
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, JwtAuthController, UserAuthController],
   providers: [AuthService, PrismaService, RcpJwtAuthGuard,
-    JwtStrategy],
+    JwtStrategy, JwtAuthService, UserAuthService],
 })
 export class AuthModule {}

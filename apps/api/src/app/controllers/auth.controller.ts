@@ -1,11 +1,12 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Inject, Param, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
 import {  ZodValidationPipe } from '@the-nexcom/nest-common';
-import { GoogleAuthGuard, JwtAuthGuard, JwtRefreshGuard, LocalAuthGuard, SessionGuard } from '../../guards';
+import { GoogleAuthGuard, JwtAuthGuard, JwtRefreshGuard, SessionLoginGuard, SessionGuard } from '../../guards';
 import {  Request, Response } from 'express';
 import { QueryRequired } from '../../decorators';
 import { AuthService } from '../services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtLoginGuard } from '../../guards/local-auth/jwt-login.guard';
 
 
 @Controller('auth')
@@ -22,7 +23,7 @@ export class AuthController {
   }
 
   @HttpCode(200)
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(SessionLoginGuard)
   @UsePipes(new ZodValidationPipe(LoginUserSchema))
   @Post('/login')
   async login(
@@ -47,7 +48,7 @@ export class AuthController {
   }
   @HttpCode(200)
   @UsePipes(new ZodValidationPipe(LoginUserSchema))
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtLoginGuard)
   @Post('/token')
   getJwtTokens(
     @Req() req,

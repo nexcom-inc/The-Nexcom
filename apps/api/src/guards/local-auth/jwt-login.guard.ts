@@ -2,10 +2,9 @@ import {  ExecutionContext, Inject, Injectable, UnauthorizedException } from '@n
 import { ClientProxy } from '@nestjs/microservices';
 import { AuthGuard } from '@nestjs/passport';
 import { AUTH_SERVICE } from '@the-nexcom/nest-common';
-import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class LocalAuthGuard extends AuthGuard('local') {
+export class JwtLoginGuard extends AuthGuard('local') {
 
     constructor(
       @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
@@ -13,15 +12,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
       super();
     }
     async canActivate(context: ExecutionContext): Promise<boolean> {
-      const request = context.switchToHttp().getRequest();
-
-      const canBeActive = await super.canActivate(context) as boolean;
-      await super.logIn(request);
-
-      await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, request.user.id));
-
-
-      return canBeActive;
+      return await super.canActivate(context) as boolean;
     }
 
     handleRequest<TUser = any>(err: any, user: any, info: any, context: ExecutionContext, status?: any): TUser {
