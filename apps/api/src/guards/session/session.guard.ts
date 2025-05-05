@@ -33,6 +33,7 @@ export class SessionGuard implements CanActivate {
 
       return true;
     } catch (error) {
+      this.authService.clearUserSessionStorage(userId, sessionId);
       request.session.destroy();
       throw new BadRequestException();
     }

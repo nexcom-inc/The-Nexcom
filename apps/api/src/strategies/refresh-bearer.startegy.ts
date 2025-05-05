@@ -1,13 +1,10 @@
-import { Inject } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
 import { PassportStrategy } from "@nestjs/passport";
-import { AUTH_SERVICE } from "@the-nexcom/nest-common";
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import { firstValueFrom } from "rxjs";
+import { AuthService } from "../app/services/auth.service";
 
 export class RefreshJwtBearerStrategy extends PassportStrategy(Strategy, 'refresh-jwt-bearer')  {
   constructor(
-    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
+    private readonly authService: AuthService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -17,13 +14,13 @@ export class RefreshJwtBearerStrategy extends PassportStrategy(Strategy, 'refres
     })
   }
 
-  async validate (req, payload : any) {
+  async validate (req, payload : {userId:string}) {
     const refreshToken = req.get('authorization')?.replace('Bearer', '')?.trim();
     const userId = payload.userId;
 
 
 
-    const user = await firstValueFrom(this.authService.send({ cmd: 'verify-refresh-token' }, { userId, refreshToken }))
+    const user = await  this.authService.verifyRefreshToken(userId, refreshToken);
 
 
 

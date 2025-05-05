@@ -12,9 +12,9 @@ import { RedisClientType } from 'redis';
 import * as crypto from 'crypto';
 
 @Injectable()
-export class AuthService {
+export class EmailAuthService {
 
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger = new Logger(EmailAuthService.name);
 
   constructor(
     @Inject(USER_SERVICE) private readonly userService: ClientProxy,

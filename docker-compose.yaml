@@ -32,4 +32,64 @@ services:
       - "5432:5432"
     env_file:
       - .env
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: api
+    hostname: api
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres
+    command: ["node", "api"]
+  mailing:
+    build:
+      context: .
+      dockerfile: apps/services/mailing/Dockerfile
+    container_name: mailing
+    hostname: mailing
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres
+    command: ["node", "mailing"]
+  userservice:
+    build:
+      context: .
+      dockerfile: apps/services/users/Dockerfile
+    container_name: userservice
+    hostname: userservice
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    command: ["node", "userservice"]
+  accounts:
+    build:
+      context: .
+      dockerfile: apps/services/accounts/Dockerfile
+    container_name: accounts
+    hostname: accounts
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    command: ["node", "accounts"]
 

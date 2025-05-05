@@ -4,7 +4,7 @@ import { SessionAuthService } from "../services/session-auth.service";
 import { NestCommonService } from "@the-nexcom/nest-common";
 
 @Injectable()
-export class AuthSessionController {
+export class SessionAuthController {
 
   constructor(
     private readonly authSSessionService: SessionAuthService,

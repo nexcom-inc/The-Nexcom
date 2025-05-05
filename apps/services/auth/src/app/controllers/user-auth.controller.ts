@@ -33,15 +33,15 @@ export class UserAuthController {
   //   return this.userAuthService.authenticateUser(userId)
   // }
 
-  // @MessagePattern({ cmd : 'register-email-password' })
-  // async registerEmailPassword(
-  //   @Ctx() context : RmqContext,
-  //   @Payload() {user} : {user:CreateUserDto}){
+  @MessagePattern({ cmd : 'register-email-password' })
+  async registerEmailPassword(
+    @Ctx() context : RmqContext,
+    @Payload() {user} : {user:CreateUserDto}){
 
-  //   this.nestCommonService.aknowledgeMessage(context)
+    this.nestCommonService.aknowledgeMessage(context)
 
-  //   return this.userAuthService.registerEmailPassword(user)
-  // }
+    return this.userAuthService.registerEmailPassword(user)
+  }
 
 
 }

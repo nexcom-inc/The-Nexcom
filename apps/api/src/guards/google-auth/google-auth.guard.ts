@@ -3,13 +3,14 @@ import {  ExecutionContext, Inject, Injectable, UnauthorizedException } from '@n
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AUTH_SERVICE } from '@the-nexcom/nest-common';
+import { AuthService } from '../../app/services/auth.service';
 
 
 @Injectable()
 export class GoogleAuthGuard extends AuthGuard('google') {
 
   constructor(
-    @Inject(AUTH_SERVICE) private readonly authService: ClientProxy
+      private readonly authService: AuthService
   ) {
     super();
   }
@@ -18,26 +19,6 @@ export class GoogleAuthGuard extends AuthGuard('google') {
         const request = context.switchToHttp().getRequest();
         const canBeActive = await super.canActivate(context) as boolean;
         await super.logIn(request);
-        try {
-          // Essaie d'appeler l'API de vérification de l'utilisateur
-          await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, request.user.id));
-        } catch (error) {
-          console.error('Authentication failed:', error);
-
-      // Crée une réponse HTML pour l'utilisateur
-      context.switchToHttp().getResponse().status(401).send(`
-        <html>
-          <body style="text-align: center; font-family: Arial;">
-            <h1>Échec de l'authentification</h1>
-            <p>Impossible de vous connecter.</p>
-            <p>${error.message}</p>
-            <a href="/">Retour à l'accueil</a>
-          </body>
-        </html>
-      `);
-          return false;
-        }
-
         return canBeActive;
       }
 

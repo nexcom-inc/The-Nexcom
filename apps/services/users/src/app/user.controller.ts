@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import {  Ctx, EventPattern, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { CreateUserDto, createUserProviderSchema, OauthUserWithIdDto } from '@the-nexcom/dto';
 import { NestCommonService } from '@the-nexcom/nest-common';
-import { filterObjectBySchema } from '@the-nexcom/utils';
+import { filterObjectBySchema } from '../utils/filter-zod-invalid';
 
 @Controller()
 export class UserController {

@@ -18,7 +18,7 @@ export class AuthService {
   }
 
   async getSessionTokens(userId : string, sessionId : string) {
-    await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, userId));
+    // await firstValueFrom(this.authService.send({ cmd: 'authenticate-user' }, userId));
 
     return await firstValueFrom(this.authService.send({ cmd: 'update-session-token' }, {
       userId,
@@ -28,6 +28,13 @@ export class AuthService {
 
   verifyEmail(code : string) {
     return this.authService.send({ cmd: 'verify-email' }, code);
+  }
+
+  async verifyRefreshToken(userId : string, refreshToken : string) {
+    return await firstValueFrom(this.authService.send({ cmd: 'verify-refresh-token' }, {
+      userId,
+      refreshToken
+    }));
   }
 
   async refreshToken(userId : string) {

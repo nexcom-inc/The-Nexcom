@@ -14,36 +14,35 @@ RUN npm install -g pnpm && pnpm install
 COPY . .
 
 # Build the application using nx
-RUN npx nx build api
+RUN rm -rf .nx
+RUN npx nx run auth:generate-types
+RUN npx nx build accounts
 
 # Stage 2: Create the final image
 FROM docker.io/node:lts-alpine
 
 # Set environment variables
-ENV HOST=0.0.0.0
-ENV PORT=3000
+
 
 # Set working directory
 WORKDIR /app
 
 # Create a non-root user
-RUN addgroup --system api && \
-    adduser --system -G api api
+RUN addgroup --system accounts && \
+    adduser --system -G accounts accounts
 
 # Copy the built application from the builder stage
-COPY --from=builder /app/dist/apps/api ./api
+COPY --from=builder /app/dist/apps/services/accounts ./accounts
 
 # Install production dependencies
-RUN npm --prefix api --omit=dev -f install
+RUN npm --prefix accounts --omit=dev -f install
 
 # Change ownership of the application directory
-RUN chown -R api:api .
+RUN chown -R accounts:accounts .
 
 # Switch to the non-root user
-USER api
+USER accounts
 
-# Expose the port the app runs on
-EXPOSE 3000
 
 # Start the application
-CMD [ "node", "api/main.js" ]
+CMD [ "node", "accounts/main.js" ]

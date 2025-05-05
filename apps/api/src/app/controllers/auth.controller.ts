@@ -102,13 +102,10 @@ export class AuthController {
 
   @Get('/email/verify/:code')
   verifyEmail(
-  @Param('code')  code : string,
+    @Param('code') code : string
   ){
+    console.log("verify email code", code);
 
-
-    if (!code) {
-      return new BadRequestException('code is required')
-    }
     return this.authService.verifyEmail(code);
   }
 

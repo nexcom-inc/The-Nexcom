@@ -11,7 +11,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { CustomExceptionFilter } from './filters';
 import cookieParser from 'cookie-parser';
 
-import * as fs from 'fs'
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { ErrorInterceptor } from './interceptors';
 
@@ -41,7 +40,6 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const document = SwaggerModule.createDocument(app, config);
-  fs.writeFileSync("./docs/swagger-spec.json", JSON.stringify(document));
   const theme = new SwaggerTheme();
   SwaggerModule.setup(globalPrefix, app, document,{
     explorer: true,

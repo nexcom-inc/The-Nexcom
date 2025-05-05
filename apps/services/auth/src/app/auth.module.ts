@@ -11,6 +11,10 @@ import { JwtAuthService } from './services/jwt-auth.service';
 import { JwtAuthController } from './controllers/jwt-auth.controller';
 import { UserAuthService } from './services/user-auth.service';
 import { UserAuthController } from './controllers/user-auth.controller';
+import { SessionAuthService } from './services/session-auth.service';
+import { SessionAuthController } from './controllers/session-auth.controller';
+import { OauthController } from './controllers/oauth.controller';
+import { EmailAuthService } from './services/email-auth.service';
 
 @Module({
   imports: [
@@ -34,11 +38,9 @@ import { UserAuthController } from './controllers/user-auth.controller';
 
 
     RedisModule,
-
-    // ConfigModule.forFeature(jwtRefreshConfig)
   ],
-  controllers: [AuthController, JwtAuthController, UserAuthController],
+  controllers: [AuthController, JwtAuthController, UserAuthController, SessionAuthController, OauthController],
   providers: [AuthService, PrismaService, RcpJwtAuthGuard,
-    JwtStrategy, JwtAuthService, UserAuthService],
+    JwtStrategy, JwtAuthService, UserAuthService, SessionAuthService, EmailAuthService],
 })
 export class AuthModule {}
