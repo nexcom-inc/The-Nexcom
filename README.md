@@ -4,7 +4,6 @@ Voici une **structure complète et optimisée** pour un projet **Build in Public
 
 ---
 
-````md
 # NexCom 🧠💬 — The All-in-One Messaging Platform
 
 > Build once. Connect everywhere. Power your communication stack.
@@ -138,11 +137,3 @@ On est là pour créer quelque chose d’exceptionnel, ensemble.
 
 Tu veux en discuter, contribuer ou nous rejoindre ?
 👉 [lamottelymouhamed@gmail.com](mailto:lamottelymouhamed@gmail.com)
-
-```
-
----
-
-Tu veux que je te le transforme en fichier `README.md` prêt à coller dans le repo ?  
-Ou que je l’adapte à ce que tu as déjà (structure du repo, modules déjà présents) ?
-```
