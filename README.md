@@ -1,10 +1,3 @@
-Creating a complete README file for your repository involves several key sections to help users and developers understand the project and contribute effectively. Here's an example of what the README file could look like for "The Nexcom". You can modify this template as needed.
-
----
-
-**README Template for The Nexcom**
-
-
 # The Nexcom
 
 Welcome to **The Nexcom**, an innovative project aimed at [insert project goal or mission here, e.g., "redefining communication technology"]. This repository hosts the core code and documentation for The Nexcom.
@@ -25,24 +18,28 @@ Welcome to **The Nexcom**, an innovative project aimed at [insert project goal o
 
 ## Overview
 
-[Provide a brief description of the project, its purpose, and the problem it solves. Example:]
 
-The Nexcom is a [brief description of the app or software]. It allows users to [state main functionalities or goals].
 
-## Features
+The Nexcom is a MutliService app. It allows users to manage thier whole com ecosyetem.
 
-- [Feature 1 - e.g., Real-time communication]
-- [Feature 2 - e.g., Intuitive user interface]
-- [Feature 3 - e.g., Cross-platform support]
+## Services
+
+- nexcom messenger
+- Nexcom invoice
+- Nexcom RH
+- Nexcom form
 
 ## Tech Stack
 
 The Nexcom uses the following technologies:
 
-- **TypeScript** (90.8%)
-- **JavaScript** (7.1%)
-- **HTML** (1.4%)
-- **Other** (0.7%)
+- **Nest**
+- **Nextjs**
+- **RabbitMq**
+- **Nx**
+- **Typescript**
+- **Postgres - Redis**
+- **Ect..**
 
 ---
 
@@ -52,6 +49,7 @@ The Nexcom uses the following technologies:
 Ensure you have the following installed on your system:
 - Node.js (v14.x or higher)
 - npm (v6.x or higher)
+- nx console 
 - [Any additional tools like Docker, Postgres, etc.]
 
 ### Installation
@@ -72,13 +70,9 @@ Ensure you have the following installed on your system:
 
 To start the development server:
 ```bash
-npm start
+npx nx run:(service)
 ```
 
-To run the tests:
-```bash
-npm test
-```
 
 ---
 
@@ -114,19 +108,4 @@ This project is licensed under the [MIT License](LICENSE). Feel free to use, mod
 
 ## Contact
 
-For questions or support, please contact the maintainers via [Insert Contact Email or Link to GitHub Discussions].
-
----
-
-### Making the Repository Public
-
-To make the repository public, follow these steps:
-
-1. Navigate to your repository settings on GitHub.
-2. Scroll down to the "Danger Zone" section.
-3. Click "Change repository visibility".
-4. Select "Public" and confirm the changes.
-
----
-
-This README provides a comprehensive overview of your project and should help users and contributors get started effectively. Let me know if you'd like help setting up the repository visibility or further assistance!
+For questions or support, please contact the maintainers via [contact@mouhamedlamotte.tech].
