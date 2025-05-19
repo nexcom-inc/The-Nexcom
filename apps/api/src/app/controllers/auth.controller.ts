@@ -1,12 +1,10 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Inject, Param, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { CreateUserDto, createUserSchema, LoginUserSchema } from '@the-nexcom/dto';
-import {  ZodValidationPipe } from '@the-nexcom/nest-common';
-import { GoogleAuthGuard, JwtAuthGuard, JwtRefreshGuard, SessionLoginGuard, SessionGuard } from '../../guards';
-import {  Request, Response } from 'express';
-import { QueryRequired } from '../../decorators';
-import { AuthService } from '../services/auth.service';
-import { AuthGuard } from '@nestjs/passport';
+import { ZodValidationPipe } from '@the-nexcom/nest-common';
+import { Response } from 'express';
+import { GoogleAuthGuard, JwtRefreshGuard, SessionGuard, SessionLoginGuard } from '../../guards';
 import { JwtLoginGuard } from '../../guards/local-auth/jwt-login.guard';
+import { AuthService } from '../services/auth.service';
 
 
 @Controller('auth')
@@ -90,7 +88,7 @@ export class AuthController {
 
 
 
-    res.redirect(`http://localhost:3001/auth/login?redirect=true&serviceName=Accounts`);
+    res.redirect(`http://localhost:3001/redirect=true&serviceName=Accounts`);
   }
 
   @Get('/email/send-verification/:email')
@@ -109,26 +107,32 @@ export class AuthController {
     return this.authService.verifyEmail(code);
   }
 
-  @UseGuards(SessionGuard)
+  // @UseGuards(SessionGuard)
   @Get('/logout')
   logout(@Req() req , @Res() res : Response) {
 
-    const sessionId = req.session.id;
-    const userId = req.user.id;
+    try {
+      const sessionId = req.session.id;
+      const userId = req.user.id;
 
-    if (userId && sessionId) {
-      console.log("session and user id found =====>",userId, sessionId);
-      console.log("\n sending it to clear user session storage in api auth service");
+      if (userId && sessionId) {
+        console.log("session and user id found =====>",userId, sessionId);
+        console.log("\n sending it to clear user session storage in api auth service");
 
-      this.authService.clearUserSessionStorage(userId, sessionId);
+        this.authService.clearUserSessionStorage(userId, sessionId);
+      }
+    } catch (error) {
+      console.log(error);
     }
+
 
     req.session.destroy(() => {
       res.clearCookie('connect.sid');
       res.clearCookie('_sat');
       res.clearCookie('_sct');
-      res.send({ message: 'Logout successful' });
+      res.redirect(`http://localhost:3001/auth/login?redirect=true&serviceName=Accounts`);
     });
+
   }
 
   // ? May be this endpoint and logique belongs to users service ?

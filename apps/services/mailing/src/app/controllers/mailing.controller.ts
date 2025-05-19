@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
-import { MailingService } from '../services/mailing.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { NestCommonService } from '@the-nexcom/nest-common';
+import { MailingService } from '../services/mailing.service';
 
 @Controller()
 export class MailingController {
@@ -19,7 +19,11 @@ export class MailingController {
     @Ctx() context : RmqContext,
   ) {
 
+    console.log("sendConfirmationEmail",data);
+
     if (!data) {
+      console.log("no data");
+
       return;
     }
 

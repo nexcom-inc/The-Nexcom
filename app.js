@@ -61,8 +61,8 @@ function updateQueueDetails(details) {
                 </div>
             </div>
             <div class="mt-4 flex space-x-2">
-                <button onclick="purgeQueue('${details.vhost}', '${details.name}')" class="bg-yellow-500 px-4 py-2 rounded">Purge</button>
-                <button onclick="deleteQueue('${details.vhost}', '${details.name}')" class="bg-red-500 px-4 py-2 rounded">Delete</button>
+                <button onclick="purgeQueue('${details.vhost}', '${details.name}')" class="bg-yellow-500 px-4 py-2 rounded-sm">Purge</button>
+                <button onclick="deleteQueue('${details.vhost}', '${details.name}')" class="bg-red-500 px-4 py-2 rounded-sm">Delete</button>
             </div>
         </div>
     `);

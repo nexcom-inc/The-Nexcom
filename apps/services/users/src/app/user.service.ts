@@ -1,10 +1,11 @@
-import {  Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Providers } from '@prisma/client';
 import { createAccountSchema, CreateUserDto, CreateUserProviderDto, createUserProviderSchema, createUserSchema } from '@the-nexcom/dto';
-import { ACCOUNT_SERVICE, PrismaService } from '@the-nexcom/nest-common';
+import { PrismaService } from '@the-nexcom/nest-common';
 import { hash } from 'bcryptjs';
 import { filterObjectBySchema } from '../utils/filter-zod-invalid';
+import { AccountService } from './account.service';
 
 @Injectable()
 export class UserService {
@@ -13,9 +14,7 @@ export class UserService {
   constructor(
     // NestCommonService
     private readonly primsa : PrismaService,
-
-    // Rmq services
-    @Inject(ACCOUNT_SERVICE) private readonly accountService: ClientProxy
+    private readonly accountService : AccountService
   ) {}
 
 
@@ -87,7 +86,7 @@ export class UserService {
       })
 
       // Emit user created to account service in order to create account
-      this.accountService.emit('user_created', {
+      this.accountService.createAccount({
         userId: newUser.id,
         ...filterObjectBySchema(user, createAccountSchema)
       })

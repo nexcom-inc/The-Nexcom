@@ -3,11 +3,11 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 import { JwtService } from '@nestjs/jwt';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { CONFIRM_EMAIL_KEY_PREFIX, MAILING_SERVICE, REDIS, USER_SERVICE } from '@the-nexcom/nest-common';
 import { RedisClientType } from 'redis';
+import { firstValueFrom } from 'rxjs'; // Import firstValueFrom to convert Observable to Promise
 
 import * as crypto from 'crypto';
 
@@ -34,6 +34,8 @@ export class EmailAuthService {
     );
 
 
+    console.log("\n user",user);
+
     if (!user) return
 
     // const code = this.generateCryptoToken(64);
@@ -43,6 +45,9 @@ export class EmailAuthService {
     await this.redisClient.set(key, user.id,{
       EX: 60 * 15
     });
+
+
+    console.log("\n code",code);
 
 
     this.mailService.emit('send_confirmation_email', {

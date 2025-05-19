@@ -15,6 +15,7 @@ import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { ErrorInterceptor } from './interceptors';
 
 
+
 const config = new DocumentBuilder()
   .setTitle('NexCom API')
   .setDescription('API documentation for NexCom')
@@ -24,6 +25,7 @@ const config = new DocumentBuilder()
 
 
 async function bootstrap() {
+
   const app = await NestFactory.create(ApiModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
@@ -31,10 +33,9 @@ async function bootstrap() {
   app.useGlobalFilters(new CustomExceptionFilter());
 
   app.enableCors({
-    origin: 'http://localhost:3001',
+    origin: ["http://localhost:3001", "http://localhost:3002"],
     credentials: true,
   });
-
 
 
   app.use(cookieParser());
@@ -52,7 +53,7 @@ async function bootstrap() {
   await app.listen(port);
 
   Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
+    `🚀 Application is running on: https://192.168.15.1:${port}/${globalPrefix}`
   );
 }
 

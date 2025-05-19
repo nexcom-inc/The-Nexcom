@@ -45,6 +45,7 @@ Thumbs.db
 # env files
 
 .env
+.env*
 
 # Next.js
 .next

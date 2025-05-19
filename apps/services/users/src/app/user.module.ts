@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ACCOUNT_SERVICE, NestCommonModule, PrismaService, RABBITMQ_ACCOUNT_QUEUE } from '@the-nexcom/nest-common';
+import { AccountController } from './account.controller';
+import { AccountService } from './account.service';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { ACCOUNT_SERVICE, NestCommonModule, PrismaService, RABBITMQ_ACCOUNT_QUEUE } from '@the-nexcom/nest-common';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -12,7 +14,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     NestCommonModule.registerRmq(ACCOUNT_SERVICE, RABBITMQ_ACCOUNT_QUEUE),
   ],
-  controllers: [UserController],
-  providers: [UserService, PrismaService],
+  controllers: [UserController, AccountController],
+  providers: [UserService, PrismaService, AccountService],
 })
 export class UserModule {}
